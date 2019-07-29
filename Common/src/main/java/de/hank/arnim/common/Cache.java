@@ -1,4 +1,4 @@
-package de.hank.arnim;
+package de.hank.arnim.common;
 
 import java.util.*;
 

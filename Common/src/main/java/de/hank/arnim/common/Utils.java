@@ -1,4 +1,4 @@
-package de.hank.arnim;
+package de.hank.arnim.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
@@ -39,18 +39,23 @@ public class Utils {
 
         properties = new Properties();
         try {
-            properties.load(Utils.class.getResourceAsStream("de/hank/arnim/system.properties"));
+            properties.load(Utils.class.getResourceAsStream("elasticsearch.properties"));
             ADDRESS_ELASTICSEARCH = properties.getProperty("ADRESS_ELASTICSEARCH");
             PORT_ELASTICSEARCH = Integer.parseInt(properties.getProperty("PORT_ELASTICSEARCH"));
             PROTOCOL_ELASTICSEARCH = properties.getProperty("PROTOCOL_ELASTICSEARCH");
             ADDRESS_ISG = properties.getProperty("ADDRESS_ISG");
         } catch (IOException e) {
+            System.out.println("Fehler beim Laden der Konfiguration");
             e.printStackTrace();
         }
     }
 
     public static RestHighLevelClient generateESRestClient() {
         return new RestHighLevelClient(RestClient.builder(new HttpHost(ADDRESS_ELASTICSEARCH, PORT_ELASTICSEARCH, PROTOCOL_ELASTICSEARCH)));
+    }
+
+    public static RestHighLevelClient generateLocalESRestClient() {
+        return new RestHighLevelClient(RestClient.builder(new HttpHost(properties.getProperty("ADRESS_ELASTICSEARCH_LOKAL"), PORT_ELASTICSEARCH, PROTOCOL_ELASTICSEARCH)));
     }
 
     public static Map<String, List<ValueDto>> getDataFromIndexInInterval(List<String> indicies, Instant from, Instant to) {
@@ -156,6 +161,7 @@ public class Utils {
             searchRequest.indices(index);
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.size(1);
+            searchSourceBuilder.sort("date", SortOrder.DESC);
             searchRequest.source(searchSourceBuilder);
             try {
                 RestHighLevelClient client = generateESRestClient();

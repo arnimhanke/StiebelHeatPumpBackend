@@ -1,8 +1,8 @@
 package de.hanke.arnim;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hank.arnim.Utils;
-import de.hank.arnim.ValueDto;
+import de.hank.arnim.common.Utils;
+import de.hank.arnim.common.ValueDto;
 import de.hanke.arnim.dto.MonthViewDataDto;
 import de.hanke.arnim.settings.DisplayedNames;
 
@@ -29,13 +29,13 @@ public class ServerStarter {
     public static void startServer() {
         get("/dashboard", (request, response) -> {
             System.out.println("Dashboard");
+            response.header("Access-Control-Allow-Origin", "*");
             try {
                 Map<String, ValueDto> lastValueDtosForIndicies = Utils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
-                response.header("Access-Control-Allow-Origin", "*");
                 return mapper.writeValueAsString(lastValueDtosForIndicies);
             } catch (Exception e) {
                 e.printStackTrace();
-                return "";
+                return e.getMessage();
             }
         });
 

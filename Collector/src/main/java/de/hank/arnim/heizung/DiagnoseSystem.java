@@ -1,9 +1,9 @@
 package de.hank.arnim.heizung;
 
-import de.hank.arnim.Utils;
+import de.hank.arnim.common.Utils;
 
-import static de.hank.arnim.Constant.*;
-import static de.hank.arnim.Utils.putValueForKeyInElasticSearch;
+import static de.hank.arnim.common.Constant.*;
+import static de.hank.arnim.common.Utils.putValueForKeyInElasticSearch;
 
 /**
  * Created by arnim on 12/24/17.

@@ -1,6 +1,6 @@
 package de.hank.arnim.data_collector;
 
-import de.hank.arnim.ValueDto;
+import de.hank.arnim.common.ValueDto;
 
 /**
  * Created by arnim on 2/13/18.

@@ -1,8 +1,8 @@
-package de.hank.arnim.spielwiese;
+package de.hank.arnim.common.spielwiese;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hank.arnim.Utils;
-import de.hank.arnim.ValueDto;
+import de.hank.arnim.common.Utils;
+import de.hank.arnim.common.ValueDto;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -10,7 +10,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import java.io.IOException;
 import java.util.*;
 
-import static de.hank.arnim.Utils.ADDRESS_ELASTICSEARCH;
+import static de.hank.arnim.common.Utils.ADDRESS_ELASTICSEARCH;
 
 /**
  * Created by arnim on 12/29/17.

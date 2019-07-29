@@ -1,9 +1,10 @@
 package de.hank.arnim.data_collector;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hank.arnim.ValueDto;
+import de.hank.arnim.common.ValueDto;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
@@ -21,7 +22,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
-import static de.hank.arnim.Utils.generateESRestClient;
+import static de.hank.arnim.common.Utils.*;
 
 /**
  * Created by arnim on 2/13/18.
@@ -29,22 +30,22 @@ import static de.hank.arnim.Utils.generateESRestClient;
 public class Copy_Helper {
 
     public static RestHighLevelClient remoteClient = generateESRestClient();
-    public static RestHighLevelClient localClient = generateESRestClient();
+    public static RestHighLevelClient localClient = generateLocalESRestClient();
     public static ObjectMapper mapper;
-    public static List<String> indicies = new ArrayList();
+    public static List<String> indicies = new ArrayList<>();
 
     static {
         mapper = new ObjectMapper();
         // Following indicies are copyied
-        /*indicies.add("heizungssuite_da_heizkreispumpe");
-        indicies.add("heizungssuite_iw_verdichter");
-        indicies.add("heizungssuite_da_pufferladepumpe");
-        indicies.add("heizungssuite_iw_vd_heizen");
-        indicies.add("heizungssuite_iw_waermemenge_nhz_heizen_summe");
-        indicies.add("heizungssuite_ia_quellentemperatur");
-        indicies.add("heizungssuite_iw_vd_kühlen");
-        indicies.add("heizungssuite_iw_nhz_2");
-        indicies.add("heizungssuite_ia_raumfeuchte");
+//        indicies.add("heizungssuite_da_heizkreispumpe");
+//        indicies.add("heizungssuite_iw_verdichter");
+//        indicies.add("heizungssuite_da_pufferladepumpe");
+//        indicies.add("heizungssuite_iw_vd_heizen");
+//        indicies.add("heizungssuite_iw_waermemenge_nhz_heizen_summe");
+//        indicies.add("heizungssuite_ia_quellentemperatur");
+//        indicies.add("heizungssuite_iw_vd_kühlen");
+//        indicies.add("heizungssuite_iw_nhz_2");
+//        indicies.add("heizungssuite_ia_raumfeuchte");
         indicies.add("heizungssuite_ia_rücklaufisttemperatur");
         indicies.add("heizungssuite_ia_anlagenfrost");
         indicies.add("heizungssuite_ia_vorlaufisttemperatur_wp");
@@ -82,25 +83,59 @@ public class Copy_Helper {
         indicies.add("heizungssuite_ia_taupunkttemperatur");
         indicies.add("heizungssuite_ia_aussentemperatur");
         indicies.add("heizungssuite_ia_solltemperatur_hk_1");
-        indicies.add("heizungssuite_ia_heizungsdruck");*/
+        indicies.add("heizungssuite_ia_heizungsdruck");
     }
 
     /**
      * method for copying values from Database A to B
      */
     public static void main(String[] args) throws IOException {
+        System.out.println(ADDRESS_ELASTICSEARCH);
         indicies.forEach((id) -> {
-            GregorianCalendar from = new GregorianCalendar(2018, 0, 14, 0, 0);
-            GregorianCalendar to = new GregorianCalendar(2018, 1, 10, 23, 59);
+            GregorianCalendar from = new GregorianCalendar(2019, Calendar.JANUARY, 1, 0, 0);
+            GregorianCalendar to = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0);
+            System.out.println("Laden der Daten vom Remote-Client");
             List<ValueDtoWithID> dataFromIndexInInterval = getDataFromIndexInInterval(Collections.singletonList(id), from.toInstant(), to.toInstant());
+            System.out.println("Laden erfolgreich");
+            final int[] i = {0};
+            final boolean[] mustWriteLastEntries = {false};
+            final BulkRequest[] request = {new BulkRequest()};
             dataFromIndexInInterval.forEach(valueDtoId -> {
                 String esType = id.replace("heizungssuite_", "").toUpperCase();
                 try {
-                    IndexResponse index = localClient.index(new IndexRequest("heizungssuite_" + esType.toLowerCase(), esType, valueDtoId.getId()).source(mapper.writeValueAsString(valueDtoId.getValueDto()), XContentType.JSON));
-                } catch (IOException e) {
+                    mustWriteLastEntries[0] = true;
+                    request[0].add(new IndexRequest("heizungssuite_" + esType.toLowerCase(), esType, valueDtoId.getId()).source(mapper.writeValueAsString(valueDtoId.getValueDto()), XContentType.JSON));
+
+                    i[0]++;
+                    // Alle 100 Einträge in die DB speichern
+                    if(i[0] == 100) {
+                        try {
+                            System.out.println("Wieder 100 wegschreiben");
+                            localClient.bulk(request[0]);
+                            i[0] = 0;
+                            mustWriteLastEntries[0] = false;
+                        } catch (IOException e) {
+                            System.out.println("Fehler beim Schreiben in die DB");
+                            e.printStackTrace();
+                        }
+                        //neuen Request erstellen
+                        request[0] = new BulkRequest();
+                    }
+                } catch (JsonProcessingException e) {
+                    System.out.println("Fehler beim Mapping");
                     e.printStackTrace();
                 }
+
             });
+            System.out.println("Entries in DB gespeichert");
+            if(mustWriteLastEntries[0]) {
+                try {
+                    localClient.bulk(request[0]);
+                } catch (IOException e) {
+                    System.out.println("Fehler beim Schreiben in die DB");
+                    e.printStackTrace();
+                }
+            }
             System.out.println(id + " ---- fertig -----");
         });
         remoteClient.close();
@@ -109,9 +144,10 @@ public class Copy_Helper {
 
     /**
      * Load all values for the given indicies and the interval
+     *
      * @param indicies to load data from
-     * @param from begin of the interval
-     * @param to end of the interval
+     * @param from     begin of the interval
+     * @param to       end of the interval
      * @return List of loaded values
      */
     public static List<ValueDtoWithID> getDataFromIndexInInterval(List<String> indicies, Instant from, Instant to) {
@@ -121,7 +157,7 @@ public class Copy_Helper {
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices(index);
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.size(10);
+            searchSourceBuilder.size(10000);
             searchSourceBuilder.sort("date", SortOrder.ASC);
             searchRequest.source(searchSourceBuilder);
             Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
