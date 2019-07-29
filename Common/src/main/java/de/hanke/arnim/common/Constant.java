@@ -1,4 +1,4 @@
-package de.hank.arnim.common;
+package de.hanke.arnim.common;
 
 /**
  * Created by arnim on 12/30/17.

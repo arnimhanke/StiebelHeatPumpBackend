@@ -1,6 +1,6 @@
 package de.hanke.arnim.dto;
 
-import de.hank.arnim.common.ValueDto;
+import de.hanke.arnim.common.ValueDto;
 
 import java.util.List;
 import java.util.Map;

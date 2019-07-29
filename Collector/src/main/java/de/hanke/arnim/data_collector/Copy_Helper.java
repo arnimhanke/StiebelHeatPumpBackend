@@ -1,8 +1,9 @@
-package de.hank.arnim.data_collector;
+package de.hanke.arnim.data_collector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hank.arnim.common.ValueDto;
+import de.hanke.arnim.common.Utils;
+import de.hanke.arnim.common.ValueDto;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
@@ -22,15 +23,16 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
-import static de.hank.arnim.common.Utils.*;
+import static de.hanke.arnim.common.Utils.*;
 
 /**
  * Created by arnim on 2/13/18.
  */
 public class Copy_Helper {
 
-    public static RestHighLevelClient remoteClient = generateESRestClient();
-    public static RestHighLevelClient localClient = generateLocalESRestClient();
+    public static Utils utils = new Utils();
+    public static RestHighLevelClient remoteClient = utils.generateESRestClient();
+    public static RestHighLevelClient localClient = utils.generateLocalESRestClient();
     public static ObjectMapper mapper;
     public static List<String> indicies = new ArrayList<>();
 
@@ -90,7 +92,7 @@ public class Copy_Helper {
      * method for copying values from Database A to B
      */
     public static void main(String[] args) throws IOException {
-        System.out.println(ADDRESS_ELASTICSEARCH);
+        System.out.println(utils.ADDRESS_ELASTICSEARCH);
         indicies.forEach((id) -> {
             GregorianCalendar from = new GregorianCalendar(2019, Calendar.JANUARY, 1, 0, 0);
             GregorianCalendar to = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0);
@@ -218,7 +220,7 @@ public class Copy_Helper {
                     e.printStackTrace();
                 }
                 remoteClient = null;
-                remoteClient = generateESRestClient();
+                remoteClient = utils.generateESRestClient();
             }
         });
         return ret;

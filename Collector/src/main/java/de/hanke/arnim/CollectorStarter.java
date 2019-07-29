@@ -1,6 +1,6 @@
-package de.hank.arnim;
+package de.hanke.arnim;
 
-import de.hank.arnim.heizung.*;
+import de.hanke.arnim.heizung.*;
 
 import java.io.IOException;
 import java.net.URL;

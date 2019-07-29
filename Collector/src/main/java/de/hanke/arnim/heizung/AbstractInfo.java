@@ -1,4 +1,6 @@
-package de.hank.arnim.heizung;
+package de.hanke.arnim.heizung;
+
+import de.hanke.arnim.common.Utils;
 
 /**
  * Created by arnim on 12/24/17.
@@ -6,8 +8,11 @@ package de.hank.arnim.heizung;
 public abstract class AbstractInfo {
 
     public String url;
+    public Utils utils = new Utils();
 
-    public AbstractInfo(String url) {
+    public AbstractInfo() {}
+
+    public void setUrl(String url) {
         this.url = url;
     }
 

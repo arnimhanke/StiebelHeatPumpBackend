@@ -3,7 +3,7 @@ package de.hanke.arnim.settings;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static de.hank.arnim.common.Constant.*;
+import static de.hanke.arnim.common.Constant.*;
 
 /**
  * Created by arnim on 1/4/18.

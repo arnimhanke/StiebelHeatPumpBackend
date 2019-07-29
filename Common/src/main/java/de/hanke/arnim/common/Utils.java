@@ -1,4 +1,4 @@
-package de.hank.arnim.common;
+package de.hanke.arnim.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
@@ -25,24 +25,22 @@ import java.util.stream.Collectors;
 
 public class Utils {
 
-    public static final boolean cacheEnabled = false;
-    public static final ObjectMapper mapper = new ObjectMapper();
-    private static final Map<String, ValueDto> lastValues = new HashMap<>();
-    private static final Cache cache = new Cache();
-    public static String ADDRESS_ELASTICSEARCH;
-    public static int PORT_ELASTICSEARCH;
-    public static String PROTOCOL_ELASTICSEARCH;
-    public static String ADDRESS_ISG;
-    static Properties properties;
+    public final boolean cacheEnabled = false;
+    public final ObjectMapper mapper = new ObjectMapper();
+    private final Map<String, ValueDto> lastValues = new HashMap<>();
+    private final Cache cache = new Cache();
+    public String ADDRESS_ELASTICSEARCH;
+    public int PORT_ELASTICSEARCH;
+    public String PROTOCOL_ELASTICSEARCH;
+    public String ADDRESS_ISG;
+    Properties properties;
 
-    static {
-
+    public Utils() {
         properties = new Properties();
         try {
             properties.load(Utils.class.getResourceAsStream("elasticsearch.properties"));
             ADDRESS_ELASTICSEARCH = properties.getProperty("ADRESS_ELASTICSEARCH");
             PORT_ELASTICSEARCH = Integer.parseInt(properties.getProperty("PORT_ELASTICSEARCH"));
-            PROTOCOL_ELASTICSEARCH = properties.getProperty("PROTOCOL_ELASTICSEARCH");
             ADDRESS_ISG = properties.getProperty("ADDRESS_ISG");
         } catch (IOException e) {
             System.out.println("Fehler beim Laden der Konfiguration");
@@ -50,15 +48,15 @@ public class Utils {
         }
     }
 
-    public static RestHighLevelClient generateESRestClient() {
+    public RestHighLevelClient generateESRestClient() {
         return new RestHighLevelClient(RestClient.builder(new HttpHost(ADDRESS_ELASTICSEARCH, PORT_ELASTICSEARCH, PROTOCOL_ELASTICSEARCH)));
     }
 
-    public static RestHighLevelClient generateLocalESRestClient() {
+    public RestHighLevelClient generateLocalESRestClient() {
         return new RestHighLevelClient(RestClient.builder(new HttpHost(properties.getProperty("ADRESS_ELASTICSEARCH_LOKAL"), PORT_ELASTICSEARCH, PROTOCOL_ELASTICSEARCH)));
     }
 
-    public static Map<String, List<ValueDto>> getDataFromIndexInInterval(List<String> indicies, Instant from, Instant to) {
+    public Map<String, List<ValueDto>> getDataFromIndexInInterval(List<String> indicies, Instant from, Instant to) {
         Map<String, List<ValueDto>> ret = new LinkedHashMap<>();
         List<AbstractMap.SimpleEntry<String, List<ValueDto>>> collection_of_data = indicies.parallelStream().map(index -> {
             if (cacheEnabled) {
@@ -94,7 +92,7 @@ public class Utils {
         return ret;
     }
 
-    private static List<ValueDto> loadDataFromDatabase(long from, long to, String index) {
+    private List<ValueDto> loadDataFromDatabase(long from, long to, String index) {
         List<ValueDto> allSearchHits = new ArrayList<>();
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(index);
@@ -153,7 +151,7 @@ public class Utils {
         return allSearchHits;
     }
 
-    public static Map<String, ValueDto> getLastValueDtosForIndicies(List<String> indicies) {
+    public Map<String, ValueDto> getLastValueDtosForIndicies(List<String> indicies) {
         Map<String, ValueDto> ret = new LinkedHashMap<>();
 
         indicies.forEach(index -> {
@@ -183,7 +181,7 @@ public class Utils {
     }
 
 
-    public static void putValueForKeyInElasticSearch(String content, String tabelName, String key, long time, String esType) {
+    public void putValueForKeyInElasticSearch(String content, String tabelName, String key, long time, String esType) {
         try {
             if (content.contains(tabelName + "</th>")) {
                 String table = content.split(tabelName + "</th>")[1];
@@ -202,7 +200,7 @@ public class Utils {
         }
     }
 
-    public static boolean putValueIntoElasticsearch(String value, long time, String esType) {
+    public boolean putValueIntoElasticsearch(String value, long time, String esType) {
         RestHighLevelClient client = generateESRestClient();
         try {
             ValueDto lastValueDtoForId = lastValues.get(esType);

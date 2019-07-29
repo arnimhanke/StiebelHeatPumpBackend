@@ -1,4 +1,4 @@
-package de.hank.arnim.common;
+package de.hanke.arnim.common;
 
 import org.joda.time.LocalDateTime;
 
