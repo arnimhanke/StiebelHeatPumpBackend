@@ -1,7 +1,5 @@
 package de.hanke.arnim.heizung;
 
-import de.hanke.arnim.common.Utils;
-
 import static de.hanke.arnim.common.Constant.*;
 
 /**
@@ -35,28 +33,28 @@ public class InfoAnlage extends AbstractInfo {
 
     public InfoAnlage() {
         super();
-        setUrl(utils.ADDRESS_ISG + "/?s=1,0");
+        setUrl(elasticSearchUtils.ADDRESS_ISG + "/?s=1,0");
     }
 
     public void getInformations(String content, long time) {
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, AUSSENTEMPERATUR, time, ES_TYPE_IA_AUSSENTEMPERATUR);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, ISTTEMPERATUR_HK_1, time, ES_TYPE_IA_ISTTEMPERATUR_HK_1);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, SOLLTEMPERATUR_HK_1, time, ES_TYPE_IA_SOLLTEMPERATUR_HK_1);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_WP, time, ES_TYPE_IA_VORLAUFISTTEMPERATUR_WP);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_NHZ, time, ES_TYPE_IA_VORLAUFISTTEMPERATUR_NHZ);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, RÜCKLAUFISTTEMPERATUR, time, ES_TYPE_IA_RÜCKLAUFISTTEMPERATUR);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, PUFFERISTTEMPERATUR, time, ES_TYPE_IA_PUFFERISTTEMPERATUR);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, PUFFERSOLLTEMPERATUR, time, ES_TYPE_IA_PUFFERSOLLTEMPERATUR);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, HEIZUNGSDRUCK, time, ES_TYPE_IA_HEIZUNGSDRUCK);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VOLUMENSTROM, time, ES_TYPE_IA_VOLUMENSTROM);
-        utils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, ANLAGENFROST, time, ES_TYPE_IA_ANLAGENFROST);
-        utils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, ISTTEMPERATUR_FEK, time, ES_TYPE_IA_ISTTEMPERATUR_FEK);
-        utils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, SOLLTEMPERATUR_FEK, time, ES_TYPE_IA_SOLLTEMPERATUR_FEK);
-        utils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, RAUMFEUCHTE, time, ES_TYPE_IA_RAUMFEUCHTE);
-        utils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, TAUPUNKTTEMPERATUR, time, ES_TYPE_IA_TAUPUNKTTEMPERATUR);
-        utils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, ISTTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_ISTTEMPERATUR_GEBLÄSE);
-        utils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, SOLLTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_SOLLTEMPERATUR_GEBLÄSE);
-        utils.putValueForKeyInElasticSearch(content, QUELLE_TABLE_KEY, QUELLENTEMPERATUR, time, ES_TYPE_IA_QUELLENTEMPERATUR);
-        utils.putValueForKeyInElasticSearch(content, QUELLE_TABLE_KEY, QUELLENDRUCK, time, ES_TYPE_IA_QUELLENDRUCK);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, AUSSENTEMPERATUR, time, ES_TYPE_IA_AUSSENTEMPERATUR);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, ISTTEMPERATUR_HK_1, time, ES_TYPE_IA_ISTTEMPERATUR_HK_1);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, SOLLTEMPERATUR_HK_1, time, ES_TYPE_IA_SOLLTEMPERATUR_HK_1);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_WP, time, ES_TYPE_IA_VORLAUFISTTEMPERATUR_WP);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_NHZ, time, ES_TYPE_IA_VORLAUFISTTEMPERATUR_NHZ);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, RÜCKLAUFISTTEMPERATUR, time, ES_TYPE_IA_RÜCKLAUFISTTEMPERATUR);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, PUFFERISTTEMPERATUR, time, ES_TYPE_IA_PUFFERISTTEMPERATUR);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, PUFFERSOLLTEMPERATUR, time, ES_TYPE_IA_PUFFERSOLLTEMPERATUR);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, HEIZUNGSDRUCK, time, ES_TYPE_IA_HEIZUNGSDRUCK);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VOLUMENSTROM, time, ES_TYPE_IA_VOLUMENSTROM);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, ANLAGENFROST, time, ES_TYPE_IA_ANLAGENFROST);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, ISTTEMPERATUR_FEK, time, ES_TYPE_IA_ISTTEMPERATUR_FEK);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, SOLLTEMPERATUR_FEK, time, ES_TYPE_IA_SOLLTEMPERATUR_FEK);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, RAUMFEUCHTE, time, ES_TYPE_IA_RAUMFEUCHTE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, TAUPUNKTTEMPERATUR, time, ES_TYPE_IA_TAUPUNKTTEMPERATUR);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, ISTTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_ISTTEMPERATUR_GEBLÄSE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, SOLLTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_SOLLTEMPERATUR_GEBLÄSE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, QUELLE_TABLE_KEY, QUELLENTEMPERATUR, time, ES_TYPE_IA_QUELLENTEMPERATUR);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, QUELLE_TABLE_KEY, QUELLENDRUCK, time, ES_TYPE_IA_QUELLENDRUCK);
     }
 }

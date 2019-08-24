@@ -1,7 +1,5 @@
 package de.hanke.arnim.heizung;
 
-import de.hanke.arnim.common.Utils;
-
 import static de.hanke.arnim.common.Constant.*;
 
 /**
@@ -29,17 +27,17 @@ public class DiagnoseSystem extends AbstractInfo {
 
     public DiagnoseSystem() {
         super();
-        setUrl(utils.ADDRESS_ISG + "/?s=2,1");
+        setUrl(elasticSearchUtils.ADDRESS_ISG + "/?s=2,1");
     }
 
     @Override
     public void getInformations(String content, long time) {
-        utils.putValueForKeyInElasticSearch(content, REGLER_TABLE_KEY, WPM_3i, time, ES_TYPE_DS_WPM_3i);
-        utils.putValueForKeyInElasticSearch(content, REGLER_TABLE_KEY, SOFTWARE, time, ES_TYPE_DS_SOFTWARE);
-        utils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, SG_READY, time, ES_TYPE_DS_SG_READY);
-        utils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, HAUPTVERSIONSNUMMER, time, ES_TYPE_DS_HAUPTVERSIONSNUMMER);
-        utils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, NEBENVERSIONSNUMMER, time, ES_TYPE_DS_NEBENVERSIONSNUMMER);
-        utils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, REVISIONSNUMMER, time, ES_TYPE_DS_REVISIONSNUMMER);
-        utils.putValueForKeyInElasticSearch(content, CAN_STATUS_TABLE_KEY, OK, time, ES_TYPE_DS_OK);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, REGLER_TABLE_KEY, WPM_3i, time, ES_TYPE_DS_WPM_3i);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, REGLER_TABLE_KEY, SOFTWARE, time, ES_TYPE_DS_SOFTWARE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, SG_READY, time, ES_TYPE_DS_SG_READY);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, HAUPTVERSIONSNUMMER, time, ES_TYPE_DS_HAUPTVERSIONSNUMMER);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, NEBENVERSIONSNUMMER, time, ES_TYPE_DS_NEBENVERSIONSNUMMER);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, ISG_TABLE_KEY, REVISIONSNUMMER, time, ES_TYPE_DS_REVISIONSNUMMER);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, CAN_STATUS_TABLE_KEY, OK, time, ES_TYPE_DS_OK);
     }
 }

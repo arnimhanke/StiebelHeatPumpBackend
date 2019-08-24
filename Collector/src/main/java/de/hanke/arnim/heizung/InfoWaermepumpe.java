@@ -1,7 +1,5 @@
 package de.hanke.arnim.heizung;
 
-import de.hanke.arnim.common.Utils;
-
 import static de.hanke.arnim.common.Constant.*;
 
 /**
@@ -31,20 +29,20 @@ public class InfoWaermepumpe extends AbstractInfo {
 
     public InfoWaermepumpe() {
         super();
-        setUrl(utils.ADDRESS_ISG + "/?s=1,1");
+        setUrl(elasticSearchUtils.ADDRESS_ISG + "/?s=1,1");
     }
 
     public void getInformations(String content, long time) {
-        utils.putValueForKeyInElasticSearch(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_TAG, time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_TAG);
-        utils.putValueForKeyInElasticSearch(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_SUMME, time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_SUMME);
-        utils.putValueForKeyInElasticSearch(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_NHZ_HEIZEN_SUMME, time, ES_TYPE_IW_WAERMEMENGE_NHZ_HEIZEN_SUMME);
-        utils.putValueForKeyInElasticSearch(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_TAG, time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG);
-        utils.putValueForKeyInElasticSearch(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME, time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME);
-        utils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, VD_HEIZEN, time, ES_TYPE_IW_VD_HEIZEN);
-        utils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, VD_KÜHLEN, time, ES_TYPE_IW_VD_KÜHLEN);
-        utils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, NHZ_1, time, ES_TYPE_IW_NHZ_1);
-        utils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, NHZ_2, time, ES_TYPE_IW_NHZ_2);
-        utils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, NHZ_1_DURCH_2, time, ES_TYPE_IW_NHZ_1_DURCH_2);
-        utils.putValueForKeyInElasticSearch(content, STARTS_TABLE_KEY, VERDICHTER, time, ES_TYPE_IW_VERDICHTER);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_TAG, time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_TAG);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_SUMME, time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_SUMME);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_NHZ_HEIZEN_SUMME, time, ES_TYPE_IW_WAERMEMENGE_NHZ_HEIZEN_SUMME);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_TAG, time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME, time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, VD_HEIZEN, time, ES_TYPE_IW_VD_HEIZEN);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, VD_KÜHLEN, time, ES_TYPE_IW_VD_KÜHLEN);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, NHZ_1, time, ES_TYPE_IW_NHZ_1);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, NHZ_2, time, ES_TYPE_IW_NHZ_2);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, LAUFZEIT_TABLE_KEY, NHZ_1_DURCH_2, time, ES_TYPE_IW_NHZ_1_DURCH_2);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, STARTS_TABLE_KEY, VERDICHTER, time, ES_TYPE_IW_VERDICHTER);
     }
 }

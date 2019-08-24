@@ -1,7 +1,7 @@
 package de.hanke.arnim.common.spielwiese;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hanke.arnim.common.Utils;
+import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.ValueDto;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
@@ -18,10 +18,10 @@ public class FilterElasticsearchSearchQuery {
 
     public static RestHighLevelClient client;
     public static ObjectMapper mapper;
-    public Utils utils;
+    public ElasticSearchUtils elasticSearchUtils;
     public FilterElasticsearchSearchQuery() {
-        this.utils = new Utils();
-        client = new RestHighLevelClient(RestClient.builder(new HttpHost(utils.ADDRESS_ELASTICSEARCH, 9200, "http")));
+        this.elasticSearchUtils = new ElasticSearchUtils();
+        client = new RestHighLevelClient(RestClient.builder(new HttpHost(elasticSearchUtils.ADDRESS_ELASTICSEARCH, 9200, "http")));
         mapper = new ObjectMapper();
     }
 
@@ -40,7 +40,7 @@ public class FilterElasticsearchSearchQuery {
         SearchResponse searchResponse = client.search(searchRequest);
         SearchHits hits = searchResponse.getHits();
 */
-        Map<String, List<ValueDto>> heizungssuite_iw_nhz_1 = bla.utils.getDataFromIndexInInterval(Collections.singletonList("heizungssuite_iw_nhz_1"), from.toInstant(), to.toInstant());
+        Map<String, List<ValueDto>> heizungssuite_iw_nhz_1 = bla.elasticSearchUtils.getDataFromIndexInInterval(Collections.singletonList("heizungssuite_iw_nhz_1"), from.toInstant(), to.toInstant());
 
 /*        for (SearchHit hit : hits) {
             ValueDto valueDto = mapper.readValue(hit.getSourceAsString(), ValueDto.class);

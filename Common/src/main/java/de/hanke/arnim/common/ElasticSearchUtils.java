@@ -23,7 +23,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Utils {
+public class ElasticSearchUtils {
 
     public final boolean cacheEnabled = false;
     public final ObjectMapper mapper = new ObjectMapper();
@@ -35,10 +35,10 @@ public class Utils {
     public String ADDRESS_ISG;
     Properties properties;
 
-    public Utils() {
+    public ElasticSearchUtils() {
         properties = new Properties();
         try {
-            properties.load(Utils.class.getResourceAsStream("elasticsearch.properties"));
+            properties.load(ElasticSearchUtils.class.getResourceAsStream("elasticsearch.properties"));
             ADDRESS_ELASTICSEARCH = properties.getProperty("ADRESS_ELASTICSEARCH");
             PORT_ELASTICSEARCH = Integer.parseInt(properties.getProperty("PORT_ELASTICSEARCH"));
             ADDRESS_ISG = properties.getProperty("ADDRESS_ISG");

@@ -2,7 +2,7 @@ package de.hanke.arnim.data_collector;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hanke.arnim.common.Utils;
+import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.ValueDto;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -23,31 +23,29 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
 
-import static de.hanke.arnim.common.Utils.*;
-
 /**
  * Created by arnim on 2/13/18.
  */
 public class Copy_Helper {
 
-    public static Utils utils = new Utils();
-    public static RestHighLevelClient remoteClient = utils.generateESRestClient();
-    public static RestHighLevelClient localClient = utils.generateLocalESRestClient();
+    public static ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
+    public static RestHighLevelClient remoteClient = elasticSearchUtils.generateESRestClient();
+    public static RestHighLevelClient localClient = elasticSearchUtils.generateLocalESRestClient();
     public static ObjectMapper mapper;
     public static List<String> indicies = new ArrayList<>();
 
     static {
         mapper = new ObjectMapper();
         // Following indicies are copyied
-//        indicies.add("heizungssuite_da_heizkreispumpe");
-//        indicies.add("heizungssuite_iw_verdichter");
-//        indicies.add("heizungssuite_da_pufferladepumpe");
-//        indicies.add("heizungssuite_iw_vd_heizen");
-//        indicies.add("heizungssuite_iw_waermemenge_nhz_heizen_summe");
-//        indicies.add("heizungssuite_ia_quellentemperatur");
-//        indicies.add("heizungssuite_iw_vd_kühlen");
-//        indicies.add("heizungssuite_iw_nhz_2");
-//        indicies.add("heizungssuite_ia_raumfeuchte");
+        indicies.add("heizungssuite_da_heizkreispumpe");
+        indicies.add("heizungssuite_iw_verdichter");
+        indicies.add("heizungssuite_da_pufferladepumpe");
+        indicies.add("heizungssuite_iw_vd_heizen");
+        indicies.add("heizungssuite_iw_waermemenge_nhz_heizen_summe");
+        indicies.add("heizungssuite_ia_quellentemperatur");
+        indicies.add("heizungssuite_iw_vd_kühlen");
+        indicies.add("heizungssuite_iw_nhz_2");
+        indicies.add("heizungssuite_ia_raumfeuchte");
         indicies.add("heizungssuite_ia_rücklaufisttemperatur");
         indicies.add("heizungssuite_ia_anlagenfrost");
         indicies.add("heizungssuite_ia_vorlaufisttemperatur_wp");
@@ -92,54 +90,65 @@ public class Copy_Helper {
      * method for copying values from Database A to B
      */
     public static void main(String[] args) throws IOException {
-        System.out.println(utils.ADDRESS_ELASTICSEARCH);
-        indicies.forEach((id) -> {
-            GregorianCalendar from = new GregorianCalendar(2019, Calendar.JANUARY, 1, 0, 0);
-            GregorianCalendar to = new GregorianCalendar(2019, Calendar.JULY, 7, 0, 0);
-            System.out.println("Laden der Daten vom Remote-Client");
-            List<ValueDtoWithID> dataFromIndexInInterval = getDataFromIndexInInterval(Collections.singletonList(id), from.toInstant(), to.toInstant());
-            System.out.println("Laden erfolgreich");
-            final int[] i = {0};
-            final boolean[] mustWriteLastEntries = {false};
-            final BulkRequest[] request = {new BulkRequest()};
-            dataFromIndexInInterval.forEach(valueDtoId -> {
-                String esType = id.replace("heizungssuite_", "").toUpperCase();
-                try {
-                    mustWriteLastEntries[0] = true;
-                    request[0].add(new IndexRequest("heizungssuite_" + esType.toLowerCase(), esType, valueDtoId.getId()).source(mapper.writeValueAsString(valueDtoId.getValueDto()), XContentType.JSON));
+        System.out.println(elasticSearchUtils.ADDRESS_ELASTICSEARCH);
+        GregorianCalendar from = new GregorianCalendar(2020, Calendar.JANUARY, 1, 0, 0);
+        GregorianCalendar to = new GregorianCalendar(2015, Calendar.JANUARY, 1, 0, 0);
 
-                    i[0]++;
-                    // Alle 100 Einträge in die DB speichern
-                    if(i[0] == 100) {
-                        try {
-                            System.out.println("Wieder 100 wegschreiben");
-                            localClient.bulk(request[0]);
-                            i[0] = 0;
-                            mustWriteLastEntries[0] = false;
-                        } catch (IOException e) {
-                            System.out.println("Fehler beim Schreiben in die DB");
-                            e.printStackTrace();
+        GregorianCalendar current = from;
+        while (current.before(to)) {
+            indicies.forEach((id) -> {
+                System.out.println("Laden der Daten vom Remote-Client");
+
+                // Kopie für das aktuelle bis
+                GregorianCalendar currentFrom = GregorianCalendar.from(current.toZonedDateTime());
+                currentFrom.add(1, Calendar.YEAR);
+                List<ValueDtoWithID> dataFromIndexInInterval = getDataFromIndexInInterval(Collections.singletonList(id), current.toInstant(), currentFrom.toInstant());
+                System.out.println("Laden erfolgreich");
+                final int[] i = {0};
+                final boolean[] mustWriteLastEntries = {false};
+                final BulkRequest[] request = {new BulkRequest()};
+                dataFromIndexInInterval.forEach(valueDtoId -> {
+                    String esType = id.replace("heizungssuite_", "").toUpperCase();
+                    try {
+                        mustWriteLastEntries[0] = true;
+                        request[0].add(new IndexRequest("heizungssuite_" + esType.toLowerCase(), esType, valueDtoId.getId()).source(mapper.writeValueAsString(valueDtoId.getValueDto()), XContentType.JSON));
+
+                        i[0]++;
+                        // Alle 100 Einträge in die DB speichern
+                        if(i[0] == 100) {
+                            try {
+                                System.out.println("Wieder 100 wegschreiben");
+                                localClient.bulk(request[0]);
+                                i[0] = 0;
+                                mustWriteLastEntries[0] = false;
+                            } catch (IOException e) {
+                                System.out.println("Fehler beim Schreiben in die DB");
+                                e.printStackTrace();
+                            }
+                            //neuen Request erstellen
+                            request[0] = new BulkRequest();
                         }
-                        //neuen Request erstellen
-                        request[0] = new BulkRequest();
+                    } catch (JsonProcessingException e) {
+                        System.out.println("Fehler beim Mapping");
+                        e.printStackTrace();
                     }
-                } catch (JsonProcessingException e) {
-                    System.out.println("Fehler beim Mapping");
-                    e.printStackTrace();
-                }
 
-            });
-            System.out.println("Entries in DB gespeichert");
-            if(mustWriteLastEntries[0]) {
-                try {
-                    localClient.bulk(request[0]);
-                } catch (IOException e) {
-                    System.out.println("Fehler beim Schreiben in die DB");
-                    e.printStackTrace();
+                });
+                System.out.println("Entries in DB gespeichert");
+                if(mustWriteLastEntries[0]) {
+                    try {
+                        localClient.bulk(request[0]);
+                    } catch (IOException e) {
+                        System.out.println("Fehler beim Schreiben in die DB");
+                        e.printStackTrace();
+                    }
                 }
-            }
-            System.out.println(id + " ---- fertig -----");
-        });
+                System.out.println(id + " ---- fertig -----");
+            });
+
+            // Ein Jahr drauf rechnen um das nächste Jahr zu laden
+            current.add(1, Calendar.YEAR);
+        }
         remoteClient.close();
         localClient.close();
     }
@@ -220,7 +229,7 @@ public class Copy_Helper {
                     e.printStackTrace();
                 }
                 remoteClient = null;
-                remoteClient = utils.generateESRestClient();
+                remoteClient = elasticSearchUtils.generateESRestClient();
             }
         });
         return ret;

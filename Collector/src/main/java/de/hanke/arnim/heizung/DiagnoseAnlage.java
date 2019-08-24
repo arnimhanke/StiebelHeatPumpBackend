@@ -1,7 +1,5 @@
 package de.hanke.arnim.heizung;
 
-import de.hanke.arnim.common.Utils;
-
 import static de.hanke.arnim.common.Constant.*;
 
 /**
@@ -28,18 +26,18 @@ public class DiagnoseAnlage extends AbstractInfo {
 
     public DiagnoseAnlage() {
         super();
-        setUrl(utils.ADDRESS_ISG + "/?s=2,0");
+        setUrl(elasticSearchUtils.ADDRESS_ISG + "/?s=2,0");
     }
 
     @Override
     public void getInformations(String content, long time) {
-        utils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, HEIZKREIS_1_PUMPE, time, ES_TYPE_DA_HEIZKREIS_1_PUMPE);
-        utils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, HEIZEN, time, ES_TYPE_DA_HEIZEN);
-        utils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, VERDICHTER, time, ES_TYPE_DA_VERDICHTER);
-        utils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, HEIZKREISPUMPE, time, ES_TYPE_DA_HEIZKREISPUMPE);
-        utils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, QUELLENPUMPE, time, ES_TYPE_DA_QUELLENPUMPE);
-        utils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, PUFFERLADEPUMPE, time, ES_TYPE_DA_PUFFERLADEPUMPE);
-        utils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, VERDICHTERSCHUETZ, time, ES_TYPE_DA_VERDICHTERSCHUETZ);
-        utils.putValueForKeyInElasticSearch(content, RESTSTILLSTAND_TABLE_KEY, RESTSTILLSTAND, time, ES_TYPE_DA_RESTSTILLSTAND);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, HEIZKREIS_1_PUMPE, time, ES_TYPE_DA_HEIZKREIS_1_PUMPE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, HEIZEN, time, ES_TYPE_DA_HEIZEN);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, VERDICHTER, time, ES_TYPE_DA_VERDICHTER);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, HEIZKREISPUMPE, time, ES_TYPE_DA_HEIZKREISPUMPE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, QUELLENPUMPE, time, ES_TYPE_DA_QUELLENPUMPE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, PUFFERLADEPUMPE, time, ES_TYPE_DA_PUFFERLADEPUMPE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, VERDICHTERSCHUETZ, time, ES_TYPE_DA_VERDICHTERSCHUETZ);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, RESTSTILLSTAND_TABLE_KEY, RESTSTILLSTAND, time, ES_TYPE_DA_RESTSTILLSTAND);
     }
 }

@@ -1,6 +1,6 @@
 package de.hanke.arnim.heizung;
 
-import de.hanke.arnim.common.Utils;
+import de.hanke.arnim.common.ElasticSearchUtils;
 
 /**
  * Created by arnim on 12/24/17.
@@ -8,7 +8,7 @@ import de.hanke.arnim.common.Utils;
 public abstract class AbstractInfo {
 
     public String url;
-    public Utils utils = new Utils();
+    public ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
 
     public AbstractInfo() {}
 
