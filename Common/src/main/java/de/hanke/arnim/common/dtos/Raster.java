@@ -1,4 +1,4 @@
-package de.fh.abs;
+package de.hanke.arnim.common.dtos;
 
 public enum Raster {
 
@@ -6,6 +6,8 @@ public enum Raster {
     PT15M("PT15M"),
 
     PT1S("PT1S"),
+
+    PT15S ("PT15S"),
 
     PT1D("PT1D"),
 

@@ -2,23 +2,27 @@ package de.hanke.arnim.common.dtos;
 
 import java.time.Instant;
 
-public class PeriodicTimeseriesValues {
+public class PeriodicTimeseriesValue {
 
-    private Instant timestamp = null;
+    public Instant time = null;
 
-    private double value;
+    public double value;
 
-    public PeriodicTimeseriesValues(Instant timestamp, double value) {
-        this.timestamp = timestamp;
+    public PeriodicTimeseriesValue(Instant time, double value) {
+        this.time = time;
         this.value = value;
     }
 
-    public Instant getTimestamp() {
-        return timestamp;
+    public PeriodicTimeseriesValue() {
+
     }
 
-    public void setTimestamp(Instant timestamp) {
-        this.timestamp = timestamp;
+    public Instant getTime() {
+        return time;
+    }
+
+    public void setTime(Instant time) {
+        this.time = time;
     }
 
     public double getValue() {

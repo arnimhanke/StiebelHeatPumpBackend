@@ -9,9 +9,9 @@ public class PeriodicTimeseries {
 
     private Raster raster = null;
 
-    private List<PeriodicTimeseriesValues> values = null;
+    private List<PeriodicTimeseriesValue> values = null;
 
-    public PeriodicTimeseries(String tsId, Raster raster, List<PeriodicTimeseriesValues> values) {
+    public PeriodicTimeseries(String tsId, Raster raster, List<PeriodicTimeseriesValue> values) {
         this.tsId = tsId;
         this.raster = raster;
         this.values = values;
@@ -33,11 +33,11 @@ public class PeriodicTimeseries {
         this.raster = raster;
     }
 
-    public List<PeriodicTimeseriesValues> getValues() {
+    public List<PeriodicTimeseriesValue> getValues() {
         return values;
     }
 
-    public void setValues(List<PeriodicTimeseriesValues> values) {
+    public void setValues(List<PeriodicTimeseriesValue> values) {
         this.values = values;
     }
 
