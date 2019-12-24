@@ -155,6 +155,7 @@ public class Utils {
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices(index);
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+            searchSourceBuilder.sort("date", SortOrder.ASC);
             searchSourceBuilder.size(1);
             searchRequest.source(searchSourceBuilder);
             try {
