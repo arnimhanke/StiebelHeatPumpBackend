@@ -21,7 +21,7 @@ public class InfoWaermepumpe extends AbstractInfo {
 
     public static final String LAUFZEIT_TABLE_KEY = "LAUFZEIT";
     public static final String VD_HEIZEN = "VD HEIZEN";
-    public static final String VD_KÜHLEN = "VD KÜHLEN";
+    public static final String VD_KUEHLEN = "VD KÜHLEN";
     public static final String NHZ_1 = "NHZ 1";
     public static final String NHZ_2 = "NHZ 2";
     public static final String NHZ_1_DURCH_2 = "NHZ 1/2";

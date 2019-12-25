@@ -12,14 +12,14 @@ public class InfoAnlage extends AbstractInfo {
 
     public static final String HEIZUNG_TABLE_KEY = "HEIZUNG";
     public static final String RAUMTEMPERATUR_TABLE_KEY = "RAUMTEMPERATUR";
-    public static final String KÜHLEN_TABLE_KEY = "KÜHLEN";
+    public static final String KUEHLEN_TABLE_KEY = "KÜHLEN";
     public static final String QUELLE_TABLE_KEY = "QUELLE";
     private static final String AUSSENTEMPERATUR = "AUSSENTEMPERATUR";
     private static final String ISTTEMPERATUR_HK_1 = "ISTTEMPERATUR HK 1";
     private static final String SOLLTEMPERATUR_HK_1 = "SOLLTEMPERATUR HK 1";
     private static final String VORLAUFISTTEMPERATUR_WP = "VORLAUFISTTEMPERATUR WP";
     private static final String VORLAUFISTTEMPERATUR_NHZ = "VORLAUFISTTEMPERATUR NHZ";
-    private static final String RÜCKLAUFISTTEMPERATUR = "RÜCKLAUFISTTEMPERATUR";
+    private static final String RUECKLAUFISTTEMPERATUR = "RÜCKLAUFISTTEMPERATUR";
     private static final String PUFFERISTTEMPERATUR = "PUFFERISTTEMPERATUR";
     private static final String PUFFERSOLLTEMPERATUR = "PUFFERSOLLTEMPERATUR";
     private static final String HEIZUNGSDRUCK = "HEIZUNGSDRUCK";
@@ -29,8 +29,8 @@ public class InfoAnlage extends AbstractInfo {
     private static final String SOLLTEMPERATUR_FEK = "SOLLTEMPERATUR FEK";
     private static final String RAUMFEUCHTE = "RAUMFEUCHTE";
     private static final String TAUPUNKTTEMPERATUR = "TAUPUNKTTEMPERATUR";
-    private static final String ISTTEMPERATUR_GEBLÄSE = "ISTTEMPERATUR GEBLÄSE";
-    private static final String SOLLTEMPERATUR_GEBLÄSE = "SOLLTEMPERATUR GEBLÄSE";
+    private static final String ISTTEMPERATUR_GEBLAESE = "ISTTEMPERATUR GEBLÄSE";
+    private static final String SOLLTEMPERATUR_GEBLAESE = "SOLLTEMPERATUR GEBLÄSE";
     private static final String QUELLENTEMPERATUR = "QUELLENTEMPERATUR";
     private static final String QUELLENDRUCK = "QUELLENDRUCK";
 
