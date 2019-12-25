@@ -7,9 +7,12 @@ import de.hanke.arnim.dto.MonthViewDataDto;
 import de.hanke.arnim.settings.DisplayedNames;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static de.hank.arnim.Constant.ES_INDEX_PREFIX;
 import static de.hanke.arnim.settings.DashBoard.INDICIES_FOR_DASHBOARD;
 import static de.hanke.arnim.settings.DayView.INDICIES_FOR_DAYVIEW;
 import static de.hanke.arnim.settings.MonthView.INDICIES_FOR_MONTHVIEW;
@@ -29,10 +32,14 @@ public class ServerStarter {
     public static void startServer() {
         get("/dashboard", (request, response) -> {
             System.out.println("Dashboard");
+            response.header("Access-Control-Allow-Origin", "*");
             try {
                 Map<String, ValueDto> lastValueDtosForIndicies = Utils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
-                response.header("Access-Control-Allow-Origin", "*");
-                return mapper.writeValueAsString(lastValueDtosForIndicies);
+                Map<String, ValueDto> humanReadableNameToValues = new LinkedHashMap<>();
+                for (String s : lastValueDtosForIndicies.keySet()) {
+                    humanReadableNameToValues.put(DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME.getOrDefault((ES_INDEX_PREFIX + s).toLowerCase(), s), lastValueDtosForIndicies.get(s));
+                }
+                return mapper.writeValueAsString(humanReadableNameToValues);
             } catch (Exception e) {
                 e.printStackTrace();
                 return "";
@@ -41,6 +48,7 @@ public class ServerStarter {
 
         get("/monthview", (request, response) -> {
             System.out.println("Monthview");
+            response.header("Access-Control-Allow-Origin", "*");
             try {
                 String fromAsString = request.queryParams("from");
                 String toAsString = request.queryParams("to");
@@ -49,7 +57,6 @@ public class ServerStarter {
 
                 Map<String, List<ValueDto>> lastValueDtosForIndicies = Utils.getDataFromIndexInInterval(INDICIES_FOR_MONTHVIEW, from, to);
                 MonthViewDataDto dto = new MonthViewDataDto(lastValueDtosForIndicies, DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME);
-                response.header("Access-Control-Allow-Origin", "*");
                 return mapper.writeValueAsString(dto);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -59,6 +66,7 @@ public class ServerStarter {
 
         get("/dayview", (request, response) -> {
             System.out.println("Dayview");
+            response.header("Access-Control-Allow-Origin", "*");
             try {
                 String fromAsString = request.queryParams("from");
                 String toAsString = request.queryParams("to");
@@ -67,7 +75,6 @@ public class ServerStarter {
 
                 Map<String, List<ValueDto>> lastValueDtosForIndicies = Utils.getDataFromIndexInInterval(INDICIES_FOR_DAYVIEW, from, to);
                 MonthViewDataDto dto = new MonthViewDataDto(lastValueDtosForIndicies, DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME);
-                response.header("Access-Control-Allow-Origin", "*");
                 return mapper.writeValueAsString(dto);
             } catch (Exception e) {
                 e.printStackTrace();
