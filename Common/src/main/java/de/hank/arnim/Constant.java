@@ -14,7 +14,7 @@ public class Constant {
     public static final String ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG = "IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG";
     public static final String ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME = "IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME";
     public static final String ES_TYPE_IW_VD_HEIZEN = "IW_VD_HEIZEN";
-    public static final String ES_TYPE_IW_VD_KÜHLEN = "IW_VD_KÜHLEN";
+    public static final String ES_TYPE_IW_VD_KUEHLEN = "IW_VD_KÜHLEN";
     public static final String ES_TYPE_IW_NHZ_1 = "IW_NHZ_1";
     public static final String ES_TYPE_IW_NHZ_2 = "IW_NHZ_2";
     public static final String ES_TYPE_IW_NHZ_1_DURCH_2 = "IW_NHZ_1_DURCH_2";
@@ -27,7 +27,7 @@ public class Constant {
     public static final String ES_TYPE_IA_SOLLTEMPERATUR_HK_1 = "IA_SOLLTEMPERATUR_HK_1";
     public static final String ES_TYPE_IA_VORLAUFISTTEMPERATUR_WP = "IA_VORLAUFISTTEMPERATUR_WP";
     public static final String ES_TYPE_IA_VORLAUFISTTEMPERATUR_NHZ = "IA_VORLAUFISTTEMPERATUR_NHZ";
-    public static final String ES_TYPE_IA_RÜCKLAUFISTTEMPERATUR = "IA_RÜCKLAUFISTTEMPERATUR";
+    public static final String ES_TYPE_IA_RUECKLAUFISTTEMPERATUR = "IA_RÜCKLAUFISTTEMPERATUR";
     public static final String ES_TYPE_IA_PUFFERISTTEMPERATUR = "IA_PUFFERISTTEMPERATUR";
     public static final String ES_TYPE_IA_PUFFERSOLLTEMPERATUR = "IA_PUFFERSOLLTEMPERATUR";
     public static final String ES_TYPE_IA_HEIZUNGSDRUCK = "IA_HEIZUNGSDRUCK";
@@ -37,10 +37,10 @@ public class Constant {
     public static final String ES_TYPE_IA_SOLLTEMPERATUR_FEK = "IA_SOLLTEMPERATUR_FEK";
     public static final String ES_TYPE_IA_RAUMFEUCHTE = "IA_RAUMFEUCHTE";
     public static final String ES_TYPE_IA_TAUPUNKTTEMPERATUR = "IA_TAUPUNKTTEMPERATUR";
-    public static final String ES_TYPE_IA_SOLLTEMPERATUR_GEBLÄSE = "IA_SOLLTEMPERATUR_GEBLÄSE";
+    public static final String ES_TYPE_IA_SOLLTEMPERATUR_GEBLAESE = "IA_SOLLTEMPERATUR_GEBLÄSE";
     public static final String ES_TYPE_IA_QUELLENTEMPERATUR = "IA_QUELLENTEMPERATUR";
     public static final String ES_TYPE_IA_QUELLENDRUCK = "IA_QUELLENDRUCK";
-    public static final String ES_TYPE_IA_ISTTEMPERATUR_GEBLÄSE = "IA_ISTTEMPERATUR_GEBLÄSE";
+    public static final String ES_TYPE_IA_ISTTEMPERATUR_GEBLAESE = "IA_ISTTEMPERATUR_GEBLÄSE";
 
 
     // Diagnose Anlage
