@@ -33,18 +33,19 @@ public class Utils {
     public static int PORT_ELASTICSEARCH;
     public static String PROTOCOL_ELASTICSEARCH;
     public static String ADDRESS_ISG;
-    static Properties properties;
+//    static Properties properties;
 
     static {
 
-        properties = new Properties();
+//        properties = new Properties();
         try {
-            properties.load(Utils.class.getResourceAsStream("de/hank/arnim/system.properties"));
-            ADDRESS_ELASTICSEARCH = properties.getProperty("ADRESS_ELASTICSEARCH");
-            PORT_ELASTICSEARCH = Integer.parseInt(properties.getProperty("PORT_ELASTICSEARCH"));
-            PROTOCOL_ELASTICSEARCH = properties.getProperty("PROTOCOL_ELASTICSEARCH");
-            ADDRESS_ISG = properties.getProperty("ADDRESS_ISG");
-        } catch (IOException e) {
+//            properties.load(Utils.class.getResourceAsStream("system.properties"));
+            ADDRESS_ELASTICSEARCH = "192.168.178.78";
+            PORT_ELASTICSEARCH = 9200;
+            PROTOCOL_ELASTICSEARCH = "http";
+            ADDRESS_ISG = "192.168.178.76";
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }

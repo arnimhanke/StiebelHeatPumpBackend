@@ -3,11 +3,10 @@ package de.hanke.arnim;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hank.arnim.Utils;
 import de.hank.arnim.ValueDto;
-import de.hanke.arnim.dto.MonthViewDataDto;
+import de.hank.arnim.dtos.MonthViewDataDto;
 import de.hanke.arnim.settings.DisplayedNames;
 
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,7 @@ public class ServerStarter {
 
     public static void startServer() {
         get("/dashboard", (request, response) -> {
-            System.out.println("Dashboard");
+            System.out.println("Dashboard1");
             response.header("Access-Control-Allow-Origin", "*");
             try {
                 Map<String, ValueDto> lastValueDtosForIndicies = Utils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
@@ -41,6 +40,7 @@ public class ServerStarter {
                 }
                 return mapper.writeValueAsString(humanReadableNameToValues);
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
                 return "";
             }
@@ -59,6 +59,7 @@ public class ServerStarter {
                 MonthViewDataDto dto = new MonthViewDataDto(lastValueDtosForIndicies, DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME);
                 return mapper.writeValueAsString(dto);
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 e.printStackTrace();
                 return "";
             }

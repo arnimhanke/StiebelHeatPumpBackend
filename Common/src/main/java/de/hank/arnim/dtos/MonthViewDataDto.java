@@ -1,4 +1,4 @@
-package de.hanke.arnim.dto;
+package de.hank.arnim.dtos;
 
 import de.hank.arnim.ValueDto;
 
