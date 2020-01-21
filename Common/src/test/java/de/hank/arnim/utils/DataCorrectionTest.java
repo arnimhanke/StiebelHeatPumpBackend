@@ -46,6 +46,7 @@ public class DataCorrectionTest {
 
         PreparedDataDto preparedDataDto = mapper.readValue(reinterpretedDataAsString, PreparedDataDto.class);
 
+        dataCorrection.fixUpSeries()
 
     }
 
