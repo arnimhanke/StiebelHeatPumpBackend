@@ -22,8 +22,8 @@ public class DataCorrectionTest {
 
     @Test
     public void test_fixUpSeries() throws IOException, URISyntaxException {
-        Instant start = Instant.parse("2019-10-31T23:00:00.00Z");
-        Instant end = Instant.parse("2019-11-30T23:00:00.00Z");
+        Instant start = Instant.parse("2019-11-30T23:00:00.00Z");
+        Instant end = Instant.parse("2019-12-31T23:00:00.00Z");
 
         DataCorrection dataCorrection = new DataCorrection();
 

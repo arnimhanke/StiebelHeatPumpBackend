@@ -71,13 +71,13 @@ public class SeriesActions {
                         if (i == values.size() - 1) {
                             while (Instant.ofEpochMilli(end.toEpochMilli()).isAfter(date) || Instant.ofEpochMilli(end.toEpochMilli()).equals(date)) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.SECONDS);
+                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
                             }
                         } else {
                             ValueDto nextValueDto = values.get(i + 1);
                             while (Instant.ofEpochMilli(nextValueDto.getDate()).isAfter(date)) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.SECONDS);
+                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
                             }
                         }
                         // Der aktuelle Wert liegt vor dem Startzeitpunkt
@@ -85,13 +85,13 @@ public class SeriesActions {
                         if (i == values.size() - 1) {
                             while (Instant.ofEpochMilli(date.toEpochMilli()).isBefore(end) || Instant.ofEpochMilli(date.toEpochMilli()).equals(end)) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.SECONDS);
+                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
                             }
                         } else {
                             ValueDto nextValueDto = values.get(i + 1);
                             while (Instant.ofEpochMilli(date.toEpochMilli()).isBefore(Instant.ofEpochMilli(nextValueDto.getDate()))) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.SECONDS);
+                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
                             }
                         }
 
@@ -169,27 +169,25 @@ public class SeriesActions {
         int countForInterval = 0;
         int i = 0;
         String lastFoundStatus = data.get(i).getValue();
-        while (date.isBefore(end) || date.equals(end)) {
+        while ((date.isBefore(end) || date.equals(end)) && data.size() > i) {
             if (startAsMilliseconds + (foundIntervals + 1) * interval == date.toEpochMilli()) {
                 ret.add(new ValueDto("" + countForInterval, start.toEpochMilli() + (foundIntervals) * interval));
                 foundIntervals++;
                 countForInterval = 0;
-                if (data.get(i).getValue() != "") {
+                if (!data.get(i).getValue().equals("")) {
                     countForInterval++;
                     lastFoundStatus = data.get(i).getValue();
                 }
-                i++;
-                date.plus(15, ChronoUnit.SECONDS);
             } else {
                 if (!data.get(i).getValue().equals("") && !lastFoundStatus.equals(data.get(i).getValue())) {
                     countForInterval++;
                     lastFoundStatus = data.get(i).getValue();
-                } else if (data.get(i).getValue() == "") {
+                } else if (data.get(i).getValue().equals("")) {
                     lastFoundStatus = "";
                 }
-                i++;
-                date.plus(15, ChronoUnit.SECONDS);
             }
+            i++;
+            date.plus(15, ChronoUnit.SECONDS);
         }
 
         return ret;
@@ -261,28 +259,28 @@ public class SeriesActions {
         int foundIntervals = 0;
         float lastmax;
         try {
-            lastmax = Float.parseFloat(data.get(0).getValue());
+            lastmax = Float.parseFloat(data.get(0).getValue().replace("h", "").trim());
         } catch (NumberFormatException e) {
             lastmax = 0f;
         }
         int i = 0;
-        while (date.isAfter(end) || date.equals(end)) {
+        while (date.isBefore(end) || date.equals(end)) {
             if (i < data.size()) {
                 if (startAsMilliseconds + (foundIntervals + 1) * interval == date.toEpochMilli()) {
                     ret.add(new ValueDto("" + lastmax, start.toEpochMilli() + ((foundIntervals) * interval)));
                     foundIntervals++;
                     try {
-                        lastmax = Float.parseFloat(data.get(i).getValue());
+                        lastmax = Float.parseFloat(data.get(i).getValue().replace("h", "").trim());
                     } catch (NumberFormatException e) {
                         lastmax = 0;
                     }
                     i++;
-                    date.plus(15, ChronoUnit.SECONDS);
+                    date = date.plus(15, ChronoUnit.SECONDS);
                 } else {
 
                     float parsedValue;
                     try {
-                        parsedValue = Float.parseFloat(data.get(i).getValue());
+                        parsedValue = Float.parseFloat(data.get(i).getValue().replace("h", "").trim());
                     } catch (NumberFormatException e) {
                         parsedValue = 0;
                     }
@@ -291,7 +289,7 @@ public class SeriesActions {
                         lastmax = parsedValue;
                     }
                     i++;
-                    date.plus(15, ChronoUnit.SECONDS);
+                    date = date.plus(15, ChronoUnit.SECONDS);
                 }
             } else {
                 break;
@@ -319,6 +317,7 @@ public class SeriesActions {
         int aktInterval = 0;
 
         for (int i = 0; i < data.size(); i++) {
+            // TODO: Das hier ist nicht wirklich safe, wenn es um <image ...> geht...
             float parsedValue = Float.parseFloat(data.get(i).getValue());
             if (Instant.ofEpochMilli(data.get(i).getDate()).isAfter(end) || Instant.ofEpochMilli(data.get(i).getDate()).equals(end)) {
                 break;
