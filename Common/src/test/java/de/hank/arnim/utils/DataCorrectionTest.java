@@ -22,8 +22,8 @@ public class DataCorrectionTest {
 
     @Test
     public void test_fixUpSeries() throws IOException, URISyntaxException {
-        Instant start = Instant.parse("2019-10-30T22:00:00.00Z");
-        Instant end = Instant.parse("2020-01-30T23:00:00.00Z");
+        Instant start = Instant.parse("2019-10-31T23:00:00.00Z");
+        Instant end = Instant.parse("2019-11-30T23:00:00.00Z");
 
         DataCorrection dataCorrection = new DataCorrection();
 
@@ -46,7 +46,12 @@ public class DataCorrectionTest {
 
         PreparedDataDto preparedDataDto = mapper.readValue(reinterpretedDataAsString, PreparedDataDto.class);
 
-        dataCorrection.fixUpSeries()
+        SeriesActions seriesActions = new SeriesActions();
+        Map<String, List<ValueDto>> stringListMap1 = seriesActions.preparingDataForFurtherUse(values, start, end, Raster.PT1_DAY);
+
+        System.out.println(stringListMap1);
+
+        // dataCorrection.fixUpSeries()
 
     }
 
