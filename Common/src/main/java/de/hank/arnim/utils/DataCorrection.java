@@ -9,6 +9,7 @@ import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.hank.arnim.utils.AggregationTypes.AggregationType.*;
 
@@ -92,21 +93,27 @@ public class DataCorrection {
 
         // Representierbarer Start generieren (Fehlerrate des ISGs)
         Instant representalStart = start;
-        Instant date = start.minus(interval, ChronoUnit.MILLIS);
+        Instant date = start.minus(1, ChronoUnit.DAYS);
 
         // Nötige Variablen initialisieren
         List<ValueDto> ret = new ArrayList<>();
-        BigDecimal lastValue = parseDataFromValueDtoToBigDecimal(data.get(0).getValue());
+
+        BigDecimal lastValue= parseDataFromValueDtoToBigDecimal(data.get(0).getValue());
 
         // Über die Werte iterieren und die Werte auf den Vortag datieren
-        for (int i = 0; i < data.size(); i++) {
-            BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(data.get(i).getValue());
+        for (ValueDto datum : data.stream().filter(valueDto -> valueDto.getDate() >= start.toEpochMilli()).collect(Collectors.toList())) {
+
+            if (date.isAfter(end)) {
+                break;
+            }
+
+            BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(datum.getValue());
 
             // Falls der Wert vor dem repräsentiertbaren Start liegt, wird dieser nicht extrahiert
-            Instant instant = Instant.ofEpochMilli(data.get(i).getDate());
+            Instant instant = Instant.ofEpochMilli(datum.getDate());
             Instant instant1 = Instant.ofEpochMilli(
                     LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-                            .toLocalDate().atStartOfDay().plus(interval, ChronoUnit.MILLIS)
+                            .toLocalDate().atStartOfDay()
                             .toEpochSecond(ZoneOffset.UTC) * 1000);
 
             if (!(instant1.isAfter(representalStart) || instant1.equals(representalStart))) {
@@ -116,9 +123,28 @@ public class DataCorrection {
 
             // Wenn der gelesene Wert ungleich dem vorherigen ist, wird der aktuelle Wert extrahiert
             if (lastValue.compareTo(parsedValue) != 0) {
-                ret.add(new ValueDto("" + lastValue.doubleValue(), date.toEpochMilli()));
-                date.plus(interval,  ChronoUnit.MILLIS);
+                ret.add(new ValueDto("" + parsedValue.doubleValue(), date.toEpochMilli()));
+                date = date.plus(1, ChronoUnit.DAYS);
                 lastValue = parsedValue;
+            }
+        }
+        Optional<ValueDto> min = ret.stream().min(Comparator.comparingLong(ValueDto::getDate));
+        if(min.isPresent()) {
+            if(min.get().getDate() > start.toEpochMilli()) {
+                // Auffüllen
+                Optional<ValueDto> beforeFirstValidValue = data.stream().filter(valueDto -> valueDto.getDate() < start.toEpochMilli()).max(Comparator.comparingLong(ValueDto::getDate));
+                BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
+                for(Instant instant = date; instant.toEpochMilli() < (min.get().getDate()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
+                    ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
+                }
+            }
+        } else {
+            // Gar kein Wert geschrieben
+            // => fuer das gesamte Intervall den letzten gefundenen Wert annehmen
+            Optional<ValueDto> beforeFirstValidValue = data.stream().filter(valueDto -> valueDto.getDate() < start.toEpochMilli()).max(Comparator.comparingLong(ValueDto::getDate));
+            BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
+            for(Instant instant = date; instant.toEpochMilli() < (end.toEpochMilli()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
+                ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
             }
         }
         return ret;

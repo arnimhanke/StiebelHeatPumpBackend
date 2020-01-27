@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SeriesActions {
 
@@ -112,9 +113,9 @@ public class SeriesActions {
      * @param interval interval for the aggregation
      */
     public Map<String, List<ValueDto>> aggregateSeries(Map<String, List<ValueDto>> data, Instant start, Instant end, int interval) {
-        if (interval == 15 * 1000) {
-            return data;
-        }
+        /*if (interval == 15 * 1000) {
+            return extractValuesForInterval(data, start, end);
+        }*/
         Map<String, List<ValueDto>> ret = new HashMap<>();
 
         for (String key : data.keySet()) {
@@ -126,6 +127,17 @@ public class SeriesActions {
         }
 
         return ret;
+    }
+
+    public Map<String, List<ValueDto>> extractValuesForInterval(Map<String, List<ValueDto>> valuesToExtract, Instant start, Instant end) {
+        Map<String, List<ValueDto>> ret = new HashMap<>();
+        long startAsEpocheMillis = start.toEpochMilli();
+        long endAsEpocheMillis = end.toEpochMilli();
+        for (String s : valuesToExtract.keySet()) {
+            List<ValueDto> extractedValueDtos = valuesToExtract.get(s).stream().filter(valueDto -> valueDto.getDate() >= startAsEpocheMillis && valueDto.getDate() < endAsEpocheMillis).collect(Collectors.toList());
+            ret.put(s, extractedValueDtos);
+        }
+        return  ret;
     }
 
     public List<ValueDto> aggregateSeiresForGivenAggregationType(AggregationTypes.AggregationType aggregationType, List<ValueDto> data, Instant start, Instant end, int interval, String id) {
@@ -187,7 +199,7 @@ public class SeriesActions {
                 }
             }
             i++;
-            date.plus(15, ChronoUnit.SECONDS);
+            date = date.plus(15, ChronoUnit.SECONDS);
         }
 
         return ret;
@@ -319,7 +331,7 @@ public class SeriesActions {
         for (int i = 0; i < data.size(); i++) {
             // TODO: Das hier ist nicht wirklich safe, wenn es um <image ...> geht...
             float parsedValue = Float.parseFloat(data.get(i).getValue());
-            if (Instant.ofEpochMilli(data.get(i).getDate()).isAfter(end) || Instant.ofEpochMilli(data.get(i).getDate()).equals(end)) {
+            if (Instant.ofEpochMilli(data.get(i).getDate()).isAfter(end)) {
                 break;
             }
             if (aktInterval == interval) {
@@ -358,13 +370,13 @@ public class SeriesActions {
         }
         for (int i = 0; i < data.size(); i++) {
             // Sind wir am Ende angekommen?
-            if (Instant.ofEpochMilli(data.get(i).getDate()).isAfter(end.plus(interval, ChronoUnit.MILLIS)) || Instant.ofEpochMilli(data.get(i).getDate()).equals(end.plus(interval, ChronoUnit.MILLIS))) {
+            if (Instant.ofEpochMilli(data.get(i).getDate()).isAfter(end) || Instant.ofEpochMilli(data.get(i).getDate()).equals(end)) {
                 break;
             }
 
             if (aktInterval == interval) {
                 // Ende des Intervalls erreicht => Übernahme des Wertes und Intervallsuche von neuem starten
-                ret.add(new ValueDto("" + data.get(i).getValue(), data.get(i).getDate()));
+                ret.add(new ValueDto("" + data.get(i).getValue(), Instant.ofEpochMilli(data.get(i).getDate()).toEpochMilli()));
                 aktInterval = 0;
             }
             aktInterval += 15 * 1000;

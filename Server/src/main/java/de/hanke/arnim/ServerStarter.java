@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hank.arnim.Utils;
 import de.hank.arnim.ValueDto;
 import de.hank.arnim.dtos.MonthViewDataDto;
-import de.hanke.arnim.settings.DisplayedNames;
+import de.hank.arnim.lang.DisplayedNames;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
