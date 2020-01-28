@@ -1,6 +1,6 @@
 package de.hank.arnim.utils;
 
-import de.hank.arnim.ValueDto;
+import de.hanke.arnim.common.ValueDto;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

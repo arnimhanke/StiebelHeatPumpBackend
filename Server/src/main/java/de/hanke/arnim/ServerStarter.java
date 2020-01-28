@@ -3,10 +3,6 @@ package de.hanke.arnim;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.ValueDto;
-import de.hanke.arnim.dto.MonthViewDataDto;
-import de.hanke.arnim.settings.DisplayedNames;
-import de.hank.arnim.Utils;
-import de.hank.arnim.ValueDto;
 import de.hank.arnim.dtos.MonthViewDataDto;
 import de.hank.arnim.lang.DisplayedNames;
 
@@ -15,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static de.hank.arnim.Constant.ES_INDEX_PREFIX;
+import static de.hanke.arnim.common.Constant.ES_INDEX_PREFIX;
 import static de.hanke.arnim.settings.DashBoard.INDICIES_FOR_DASHBOARD;
 import static de.hanke.arnim.settings.DayView.INDICIES_FOR_DAYVIEW;
 import static de.hanke.arnim.settings.MonthView.INDICIES_FOR_MONTHVIEW;
@@ -38,7 +34,7 @@ public class ServerStarter {
             System.out.println("Dashboard1");
             response.header("Access-Control-Allow-Origin", "*");
             try {
-                Map<String, ValueDto> lastValueDtosForIndicies = Utils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
+                Map<String, ValueDto> lastValueDtosForIndicies = elasticSearchUtils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
                 Map<String, ValueDto> humanReadableNameToValues = new LinkedHashMap<>();
                 for (String s : lastValueDtosForIndicies.keySet()) {
                     humanReadableNameToValues.put(DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME.getOrDefault((ES_INDEX_PREFIX + s).toLowerCase(), s), lastValueDtosForIndicies.get(s));

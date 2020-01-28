@@ -42,7 +42,7 @@ public class InfoAnlage extends AbstractInfo {
         elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, SOLLTEMPERATUR_HK_1, time, ES_TYPE_IA_SOLLTEMPERATUR_HK_1);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_WP, time, ES_TYPE_IA_VORLAUFISTTEMPERATUR_WP);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_NHZ, time, ES_TYPE_IA_VORLAUFISTTEMPERATUR_NHZ);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, RÜCKLAUFISTTEMPERATUR, time, ES_TYPE_IA_RÜCKLAUFISTTEMPERATUR);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, RÜCKLAUFISTTEMPERATUR, time, ES_TYPE_IA_RUECKLAUFISTTEMPERATUR);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, PUFFERISTTEMPERATUR, time, ES_TYPE_IA_PUFFERISTTEMPERATUR);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, PUFFERSOLLTEMPERATUR, time, ES_TYPE_IA_PUFFERSOLLTEMPERATUR);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, HEIZUNG_TABLE_KEY, HEIZUNGSDRUCK, time, ES_TYPE_IA_HEIZUNGSDRUCK);
@@ -52,8 +52,8 @@ public class InfoAnlage extends AbstractInfo {
         elasticSearchUtils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, SOLLTEMPERATUR_FEK, time, ES_TYPE_IA_SOLLTEMPERATUR_FEK);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, RAUMFEUCHTE, time, ES_TYPE_IA_RAUMFEUCHTE);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, RAUMTEMPERATUR_TABLE_KEY, TAUPUNKTTEMPERATUR, time, ES_TYPE_IA_TAUPUNKTTEMPERATUR);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, ISTTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_ISTTEMPERATUR_GEBLÄSE);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, SOLLTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_SOLLTEMPERATUR_GEBLÄSE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, ISTTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_ISTTEMPERATUR_GEBLAESE);
+        elasticSearchUtils.putValueForKeyInElasticSearch(content, KÜHLEN_TABLE_KEY, SOLLTEMPERATUR_GEBLÄSE, time, ES_TYPE_IA_SOLLTEMPERATUR_GEBLAESE);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, QUELLE_TABLE_KEY, QUELLENTEMPERATUR, time, ES_TYPE_IA_QUELLENTEMPERATUR);
         elasticSearchUtils.putValueForKeyInElasticSearch(content, QUELLE_TABLE_KEY, QUELLENDRUCK, time, ES_TYPE_IA_QUELLENDRUCK);
     }

@@ -1,26 +1,33 @@
 package de.hank.arnim.utils;
 
-import de.hank.arnim.ValueDto;
-import de.hank.arnim.utils.AggregationTypes.AggregationType;
-import org.joda.time.LocalDate;
+import de.hanke.arnim.common.ValueDto;
 
 import java.math.BigDecimal;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.hank.arnim.utils.AggregationTypes.AggregationType.*;
-
 public class DataCorrection {
+
+    private static BigDecimal parseDataFromValueDtoToBigDecimal(String dataAsString) {
+        try {
+            String fixedString = dataAsString.replace(",", ".").replace("kWh", "").replace("MWh", "").trim();
+            return new BigDecimal(fixedString);
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
+        }
+    }
 
     /**
      * Corrects the data from the database
      *
-     * @param data Uncorrected data
-     * @param start Start
-     * @param end End
+     * @param data     Uncorrected data
+     * @param start    Start
+     * @param end      End
      * @param interval
      */
     public Map<String, List<ValueDto>> fixUpSeries(Map<String, List<ValueDto>> data, Instant start, Instant end, int interval) {
@@ -29,7 +36,7 @@ public class DataCorrection {
 
         for (Map.Entry<String, List<ValueDto>> stringValueDtoEntry : data.entrySet()) {
             List<ValueDto> retValues = new LinkedList<>();
-            switch(AggregationTypes.aggregationConfig.get(stringValueDtoEntry.getKey())) {
+            switch (AggregationTypes.aggregationConfig.get(stringValueDtoEntry.getKey())) {
                 case COUNT:
                 case AVERAGE:
                 case MAX:
@@ -80,7 +87,7 @@ public class DataCorrection {
             BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(data.get(i).getValue());
 
             // Differenz zwischen den letzten Werten ermitteln
-            ret.add(new ValueDto("" + parsedValue.doubleValue(),  data.get(i).getDate()));
+            ret.add(new ValueDto("" + parsedValue.doubleValue(), data.get(i).getDate()));
         }
         return ret;
     }
@@ -98,7 +105,7 @@ public class DataCorrection {
         // Nötige Variablen initialisieren
         List<ValueDto> ret = new ArrayList<>();
 
-        BigDecimal lastValue= parseDataFromValueDtoToBigDecimal(data.get(0).getValue());
+        BigDecimal lastValue = parseDataFromValueDtoToBigDecimal(data.get(0).getValue());
 
         // Über die Werte iterieren und die Werte auf den Vortag datieren
         for (ValueDto datum : data.stream().filter(valueDto -> valueDto.getDate() >= start.toEpochMilli()).collect(Collectors.toList())) {
@@ -129,12 +136,12 @@ public class DataCorrection {
             }
         }
         Optional<ValueDto> min = ret.stream().min(Comparator.comparingLong(ValueDto::getDate));
-        if(min.isPresent()) {
-            if(min.get().getDate() > start.toEpochMilli()) {
+        if (min.isPresent()) {
+            if (min.get().getDate() > start.toEpochMilli()) {
                 // Auffüllen
                 Optional<ValueDto> beforeFirstValidValue = data.stream().filter(valueDto -> valueDto.getDate() < start.toEpochMilli()).max(Comparator.comparingLong(ValueDto::getDate));
                 BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
-                for(Instant instant = date; instant.toEpochMilli() < (min.get().getDate()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
+                for (Instant instant = date; instant.toEpochMilli() < (min.get().getDate()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
                     ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
                 }
             }
@@ -143,20 +150,11 @@ public class DataCorrection {
             // => fuer das gesamte Intervall den letzten gefundenen Wert annehmen
             Optional<ValueDto> beforeFirstValidValue = data.stream().filter(valueDto -> valueDto.getDate() < start.toEpochMilli()).max(Comparator.comparingLong(ValueDto::getDate));
             BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
-            for(Instant instant = date; instant.toEpochMilli() < (end.toEpochMilli()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
+            for (Instant instant = date; instant.toEpochMilli() < (end.toEpochMilli()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
                 ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
             }
         }
         return ret;
-    }
-
-    private static BigDecimal parseDataFromValueDtoToBigDecimal(String dataAsString) {
-        try {
-            String fixedString = dataAsString.replace(",", ".").replace("kWh", "").replace("MWh", "").trim();
-            return new BigDecimal(fixedString);
-        } catch(Exception e) {
-            return BigDecimal.ZERO;
-        }
     }
 
 }
