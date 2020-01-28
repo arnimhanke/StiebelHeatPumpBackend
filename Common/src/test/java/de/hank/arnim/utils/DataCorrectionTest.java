@@ -28,11 +28,7 @@ public class DataCorrectionTest {
     @Test
     public void test_fixUpSeries() throws IOException, URISyntaxException {
         Instant start = Instant.parse("2019-11-30T23:00:00.00Z");
-        Instant end = Instant.parse("2019-12-31T23:00:00.00Z");
-
-        DataCorrection dataCorrection = new DataCorrection();
-
-        LinkedList<ValueDto> data = new LinkedList<>();
+        Instant end = Instant.parse("2019-12-10T23:00:00.00Z");
 
         File inputDataAsFile = new File(this.getClass().getResource("FixUpSeries_201910.json").toURI());
 
@@ -40,11 +36,7 @@ public class DataCorrectionTest {
         ObjectMapper mapper = new ObjectMapper();
         MonthViewDataDto dto = mapper.readValue(dataAsString, MonthViewDataDto.class);
 
-        Map<String, List<ValueDto>> correctedValues = new LinkedHashMap<>();
         Map<String, List<ValueDto>> values = dto.getValues();
-        // Map<String, List<ValueDto>> stringListMap = dataCorrection.fixUpSeries(values, start, end, 4 * 15);
-
-        // System.out.println(stringListMap);
 
         File reinterpretedDatas = new File(this.getClass().getResource("reinterpretedDatas.json").toURI());
         String reinterpretedDataAsString = Files.readAllLines(reinterpretedDatas.toPath()).stream().collect(Collectors.joining());
