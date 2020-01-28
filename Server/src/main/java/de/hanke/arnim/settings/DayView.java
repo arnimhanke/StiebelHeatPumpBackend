@@ -3,7 +3,7 @@ package de.hanke.arnim.settings;
 import java.util.LinkedList;
 import java.util.List;
 
-import static de.hank.arnim.Constant.*;
+import static de.hanke.arnim.common.Constant.*;
 
 public class DayView {
 

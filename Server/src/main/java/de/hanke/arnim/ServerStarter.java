@@ -1,6 +1,10 @@
 package de.hanke.arnim;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.hanke.arnim.common.ElasticSearchUtils;
+import de.hanke.arnim.common.ValueDto;
+import de.hanke.arnim.dto.MonthViewDataDto;
+import de.hanke.arnim.settings.DisplayedNames;
 import de.hank.arnim.Utils;
 import de.hank.arnim.ValueDto;
 import de.hank.arnim.dtos.MonthViewDataDto;
@@ -29,6 +33,7 @@ public class ServerStarter {
     }
 
     public static void startServer() {
+        ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
         get("/dashboard", (request, response) -> {
             System.out.println("Dashboard1");
             response.header("Access-Control-Allow-Origin", "*");
@@ -42,20 +47,24 @@ public class ServerStarter {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
-                return "";
+                return e.getMessage();
             }
         });
 
         get("/monthview", (request, response) -> {
+            response.header("Access-Control-Allow-Origin", "*");
             System.out.println("Monthview");
             response.header("Access-Control-Allow-Origin", "*");
             try {
+                System.out.println("Parse data");
                 String fromAsString = request.queryParams("from");
                 String toAsString = request.queryParams("to");
                 Instant from = Instant.parse(fromAsString);
                 Instant to = Instant.parse(toAsString);
 
-                Map<String, List<ValueDto>> lastValueDtosForIndicies = Utils.getDataFromIndexInInterval(INDICIES_FOR_MONTHVIEW, from, to);
+                System.out.println("load Data");
+                Map<String, List<ValueDto>> lastValueDtosForIndicies = elasticSearchUtils.getDataFromIndexInInterval(INDICIES_FOR_MONTHVIEW, from, to);
+                System.out.println("Dto generieren");
                 MonthViewDataDto dto = new MonthViewDataDto(lastValueDtosForIndicies, DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME);
                 return mapper.writeValueAsString(dto);
             } catch (Exception e) {
@@ -74,7 +83,7 @@ public class ServerStarter {
                 Instant from = Instant.parse(fromAsString);
                 Instant to = Instant.parse(toAsString);
 
-                Map<String, List<ValueDto>> lastValueDtosForIndicies = Utils.getDataFromIndexInInterval(INDICIES_FOR_DAYVIEW, from, to);
+                Map<String, List<ValueDto>> lastValueDtosForIndicies = elasticSearchUtils.getDataFromIndexInInterval(INDICIES_FOR_DAYVIEW, from, to);
                 MonthViewDataDto dto = new MonthViewDataDto(lastValueDtosForIndicies, DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME);
                 return mapper.writeValueAsString(dto);
             } catch (Exception e) {
