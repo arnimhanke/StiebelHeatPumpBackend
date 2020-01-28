@@ -1,4 +1,4 @@
-package de.hank.arnim.dtos;
+package de.hanke.arnim.common.dtos;
 
 import java.util.HashMap;
 import java.util.List;

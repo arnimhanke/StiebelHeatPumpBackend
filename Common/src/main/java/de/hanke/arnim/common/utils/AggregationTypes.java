@@ -1,4 +1,4 @@
-package de.hank.arnim.utils;
+package de.hanke.arnim.common.utils;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -3,8 +3,8 @@ package de.hanke.arnim;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.ValueDto;
-import de.hank.arnim.dtos.MonthViewDataDto;
-import de.hank.arnim.lang.DisplayedNames;
+import de.hanke.arnim.common.dtos.MonthViewDataDto;
+import de.hanke.arnim.common.lang.DisplayedNames;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;

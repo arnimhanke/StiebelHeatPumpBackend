@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class InfluxDBUtils {
 
-    private final String DATABASEURL = "http://192.168.178.96:8086";
+    private final String DATABASEURL = "http://192.168.178.122:8086";
     private final String USERNAME = "root";
     private final String PASSWORD = "root";
 
@@ -37,31 +37,31 @@ public class InfluxDBUtils {
         this.influxDB.setLogLevel(InfluxDB.LogLevel.FULL);
         influxDB.setRetentionPolicy("autogen");
         influxDB.enableBatch(500000, 100, TimeUnit.MILLISECONDS);
-        this.dbName = "NOAA_water_database";
+        this.dbName = "MyTestDB";
     }
 
     public static void main(String[] args) {
         InfluxDBUtils influxDBUtils = new InfluxDBUtils();
-        String TS_ID = "test_2";
+        String TS_ID = "test_1";
         // influxDBUtils.getTimeSeries("h2o_feet", Instant.parse("2007-12-03T10:15:30.00Z"), Instant.now());
         ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
         // tageszeitreihe erstellen
         long startMillis = System.currentTimeMillis();
         Instant start = Instant.parse("2016-01-01T23:00:00.00Z");
         Instant current = Instant.from(start);
-        Instant end = Instant.parse("2017-01-01T23:00:00.00Z");
+        Instant end = Instant.parse("2016-01-02T23:00:00.00Z");
         while(current.isBefore(end)) {
             PeriodicTimeseriesValue value = new PeriodicTimeseriesValue();
             value.setTime(current);
             value.setValue(10);
             values.add(value);
 
-            current = current.plusSeconds(1); // 15 Minuten
+            current = current.plusSeconds(15); // 15 Minuten
         }
         System.out.println("Dauer für das Erstellen der Werte "+ (System.currentTimeMillis() - startMillis));
 
         startMillis = System.currentTimeMillis();
-        influxDBUtils.insertTimeSeries(new PeriodicTimeseries(TS_ID, Raster.PT15M, values));
+        influxDBUtils.insertTimeSeries(new PeriodicTimeseries(TS_ID, Raster.PT15S, values));
         System.out.println("Dauer für das Schreiben der Werte in die DB "+ (System.currentTimeMillis() - startMillis));
 
 //        List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(TS_ID, start, end);

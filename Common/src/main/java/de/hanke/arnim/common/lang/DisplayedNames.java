@@ -1,4 +1,4 @@
-package de.hank.arnim.lang;
+package de.hanke.arnim.common.lang;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
