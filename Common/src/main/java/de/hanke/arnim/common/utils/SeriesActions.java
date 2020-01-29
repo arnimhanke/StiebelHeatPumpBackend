@@ -1,6 +1,7 @@
 package de.hanke.arnim.common.utils;
 
 import de.hanke.arnim.common.ValueDto;
+import de.hanke.arnim.common.dtos.Raster;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -26,19 +27,21 @@ public class SeriesActions {
         replaceCommaDecimalWithPoint(data);
 
         int intervalAsNumber = 0;
+
         switch (interval) {
-            case PT15_SEC:
+            case PT15S:
                 intervalAsNumber = 15 * 1000;
                 break;
-            case PT1_DAY:
+            case PT1D:
                 intervalAsNumber = 24 * 60 * 60 * 1000;
                 break;
         }
 
         Map<String, List<ValueDto>> fixedValues = dataCorrection.fixUpSeries(data, start, end, intervalAsNumber);
-        Map<String, List<ValueDto>> filledSerie = fillSeries(fixedValues, start, end.plus(intervalAsNumber, ChronoUnit.MILLIS));
-        Map<String, List<ValueDto>> aggregateSeries = aggregateSeries(filledSerie, start, end, intervalAsNumber);
+        Map<String, List<ValueDto>> filledSeries = fillSeries(fixedValues, start, end.plus(intervalAsNumber, ChronoUnit.MILLIS));
+        Map<String, List<ValueDto>> aggregateSeries = aggregateSeries(filledSeries, start, end, intervalAsNumber);
         return aggregateSeries;
+
     }
 
     public void replaceCommaDecimalWithPoint(Map<String, List<ValueDto>> data) {
@@ -72,13 +75,13 @@ public class SeriesActions {
                         if (i == values.size() - 1) {
                             while (Instant.ofEpochMilli(end.toEpochMilli()).isAfter(date) || Instant.ofEpochMilli(end.toEpochMilli()).equals(date)) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
+                                date = date.plus(15, ChronoUnit.SECONDS);
                             }
                         } else {
                             ValueDto nextValueDto = values.get(i + 1);
                             while (Instant.ofEpochMilli(nextValueDto.getDate()).isAfter(date)) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
+                                date = date.plus(15, ChronoUnit.SECONDS);
                             }
                         }
                         // Der aktuelle Wert liegt vor dem Startzeitpunkt
@@ -86,13 +89,13 @@ public class SeriesActions {
                         if (i == values.size() - 1) {
                             while (Instant.ofEpochMilli(date.toEpochMilli()).isBefore(end) || Instant.ofEpochMilli(date.toEpochMilli()).equals(end)) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
+                                date = date.plus(15, ChronoUnit.SECONDS);
                             }
                         } else {
                             ValueDto nextValueDto = values.get(i + 1);
                             while (Instant.ofEpochMilli(date.toEpochMilli()).isBefore(Instant.ofEpochMilli(nextValueDto.getDate()))) {
                                 retValues.add(new ValueDto(actualValueDto.getValue().replace(',', '.'), date.toEpochMilli()));
-                                date = date.plus(15 * 1000, ChronoUnit.MILLIS);
+                                date = date.plus(15, ChronoUnit.SECONDS);
                             }
                         }
 
@@ -143,6 +146,10 @@ public class SeriesActions {
     public List<ValueDto> aggregateSeiresForGivenAggregationType(AggregationTypes.AggregationType aggregationType, List<ValueDto> data, Instant start, Instant end, int interval, String id) {
         if (data == null || data.size() == 0) {
             return new ArrayList<>();
+        }
+
+        if(interval == 15*1000) {
+            return data;
         }
 
         switch (aggregationType) {

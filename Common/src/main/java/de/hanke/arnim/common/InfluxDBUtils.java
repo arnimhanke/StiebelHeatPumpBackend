@@ -25,35 +25,37 @@ public class InfluxDBUtils {
 
 
     private String dbName;
-    private InfluxDB influxDB;
+    protected InfluxDB influxDB;
 
-
-    public InfluxDBUtils() {
+    public InfluxDBUtils(String dataBaseName) {
         OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder()
                 .connectTimeout(40, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS);
         this.influxDB = InfluxDBFactory.connect(DATABASEURL, USERNAME, PASSWORD, okHttpClientBuilder);
-        this.influxDB.setLogLevel(InfluxDB.LogLevel.FULL);
+        this.influxDB.setLogLevel(InfluxDB.LogLevel.NONE);
         influxDB.setRetentionPolicy("autogen");
-        influxDB.enableBatch(500000, 100, TimeUnit.MILLISECONDS);
-        this.dbName = "MyTestDB";
+        influxDB.enableBatch(10000, 20, TimeUnit.MILLISECONDS);
+        this.dbName = dataBaseName;
+        if(!influxDB.databaseExists(dbName)) {
+            influxDB.createDatabase(dbName);
+        }
     }
 
     public static void main(String[] args) {
-        InfluxDBUtils influxDBUtils = new InfluxDBUtils();
+        InfluxDBUtils influxDBUtils = new InfluxDBUtils("MyTestDB");
         String TS_ID = "test_1";
         // influxDBUtils.getTimeSeries("h2o_feet", Instant.parse("2007-12-03T10:15:30.00Z"), Instant.now());
         ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
         // tageszeitreihe erstellen
         long startMillis = System.currentTimeMillis();
-        Instant start = Instant.parse("2016-01-01T23:00:00.00Z");
+        Instant start = Instant.parse("2017-12-31T23:00:00.00Z");
         Instant current = Instant.from(start);
-        Instant end = Instant.parse("2016-01-02T23:00:00.00Z");
+        Instant end = Instant.parse("2018-01-01T23:00:00.00Z");
         while(current.isBefore(end)) {
             PeriodicTimeseriesValue value = new PeriodicTimeseriesValue();
             value.setTime(current);
-            value.setValue(10);
+            value.setValue(20);
             values.add(value);
 
             current = current.plusSeconds(15); // 15 Minuten
@@ -64,19 +66,17 @@ public class InfluxDBUtils {
         influxDBUtils.insertTimeSeries(new PeriodicTimeseries(TS_ID, Raster.PT15S, values));
         System.out.println("Dauer für das Schreiben der Werte in die DB "+ (System.currentTimeMillis() - startMillis));
 
-//        List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(TS_ID, start, end);
-//        System.out.println(timeSeries.size());
         influxDBUtils.influxDB.close();
     }
 
     public boolean insertTimeSeries(PeriodicTimeseries tsDto) {// tsId, raster, list of values(timstamp, value)
         this.influxDB.setDatabase(this.dbName);
         try {
-            BatchPoints batchPoints = BatchPoints
+            /**BatchPoints batchPoints = BatchPoints
                     .database(this.dbName)
                     .retentionPolicy("autogen")
                     .build();
-
+*/
             tsDto.getValues().forEach(val -> {
                 Point point = Point.measurement(tsDto.getTsId())
                         .time(val.getTime().toEpochMilli(), TimeUnit.MILLISECONDS)
@@ -85,7 +85,7 @@ public class InfluxDBUtils {
 
                 //add the actual point to PointList
                 influxDB.write(point);
-                batchPoints.point(point);
+                //batchPoints.point(point);
             });
 
             // write all points to the database

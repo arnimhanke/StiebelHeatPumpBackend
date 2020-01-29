@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 
 public class DataCorrection {
 
-    private static BigDecimal parseDataFromValueDtoToBigDecimal(String dataAsString) {
+    public static BigDecimal parseDataFromValueDtoToBigDecimal(String dataAsString) {
         try {
-            String fixedString = dataAsString.replace(",", ".").replace("kWh", "").replace("MWh", "").trim();
+            String fixedString = dataAsString.replace(",", ".").replace("kWh", "").replace("MWh", "").replace("h", "").trim();
             return new BigDecimal(fixedString);
         } catch (Exception e) {
             return BigDecimal.ZERO;
@@ -38,9 +38,11 @@ public class DataCorrection {
             List<ValueDto> retValues = new LinkedList<>();
             switch (AggregationTypes.aggregationConfig.get(stringValueDtoEntry.getKey())) {
                 case COUNT:
+                    retValues = fixUpSeriesCount(stringValueDtoEntry.getValue(), start, end, stringValueDtoEntry.getKey(), interval);
+                    break;
                 case AVERAGE:
                 case MAX:
-                    retValues = stringValueDtoEntry.getValue();
+                    retValues = parseAllValues(stringValueDtoEntry.getValue());
                     break;
                 case MAX_BEFOR_MINOR:
                     retValues = fixUpSeriesMaxBeforeMinor(stringValueDtoEntry.getValue(), start, end, stringValueDtoEntry.getKey(), interval);
@@ -54,6 +56,29 @@ public class DataCorrection {
         return stringValueDtoMap;
     }
 
+    private List<ValueDto> parseAllValues(List<ValueDto> value) {
+        ArrayList<ValueDto> valueDtos = new ArrayList<>();
+        for (ValueDto valueDto : value) {
+            valueDtos.add(new ValueDto("" + parseDataFromValueDtoToBigDecimal(valueDto.getValue()), valueDto.getDate()));
+        }
+        return valueDtos;
+    }
+
+    private List<ValueDto> fixUpSeriesCount(List<ValueDto> value, Instant start, Instant end, String key, int interval) {
+        List<ValueDto> ret = new ArrayList<>();
+        for (ValueDto valueDto : value) {
+
+            String reinterpretedData;
+            if (valueDto.getValue() == null || valueDto.getValue().isEmpty()) {
+                reinterpretedData = "0";
+            } else {
+                reinterpretedData = "1";
+            }
+            ret.add(new ValueDto(reinterpretedData, valueDto.getDate()));
+        }
+        return ret;
+    }
+
     /**
      * Corrects the data for the TS-Type "Max-Before-Minor"
      */
@@ -65,15 +90,8 @@ public class DataCorrection {
 
         // Nötige Variablen initialisieren
         List<ValueDto> ret = new LinkedList<>();
-        int foundIntervals = 0;
 
-        BigDecimal lastValue;
-        try {
-            lastValue = new BigDecimal(data.get(0).getValue());
-        } catch (Exception e) {
-            lastValue = BigDecimal.ZERO;
-        }
-        long lastDate = data.get(0).getDate();
+        Instant lastParsedDate = Instant.ofEpochMilli(data.get(0).getDate());
 
         // Über alle Werte iterieren, auf das richtige Datum mappen, falls nötig.
         for (int i = 0; i < data.size(); i++) {
@@ -85,9 +103,29 @@ public class DataCorrection {
 
             // Parsen des Wertes
             BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(data.get(i).getValue());
+            if (ret.size() > 0) {
+                BigDecimal retValMinusOne = parseDataFromValueDtoToBigDecimal(ret.get(ret.size() - 1).getValue());
+                if (retValMinusOne.subtract(parsedValue).doubleValue() > 0.5) {
+                    // Letzten Wert auf der Zeiztachse verschieben
+                    ValueDto removed = ret.remove(ret.size() - 1);
+                    Instant correctedInstantForFirstDay = LocalDateTime.ofInstant(lastParsedDate, ZoneId.systemDefault())
+                            .toLocalDate().atStartOfDay().plus(1, ChronoUnit.DAYS).minus(interval, ChronoUnit.MILLIS)
+                            .toInstant(ZoneId.systemDefault().getRules().getOffset(lastParsedDate));
+                    ret.add(new ValueDto(removed.getValue(), correctedInstantForFirstDay.toEpochMilli()));
 
-            // Differenz zwischen den letzten Werten ermitteln
-            ret.add(new ValueDto("" + parsedValue.doubleValue(), data.get(i).getDate()));
+
+                    long correctedDateForNextDay = correctedInstantForFirstDay.plus(interval, ChronoUnit.MILLIS).toEpochMilli();
+                    ret.add(new ValueDto("" + parsedValue.doubleValue(), correctedDateForNextDay));
+                    lastParsedDate = Instant.ofEpochMilli(correctedDateForNextDay);
+
+                } else {
+                    ret.add(new ValueDto("" + parsedValue.doubleValue(), data.get(i).getDate()));
+                    lastParsedDate = Instant.ofEpochMilli(data.get(i).getDate());
+                }
+            } else {
+                ret.add(new ValueDto("" + parsedValue.doubleValue(), data.get(i).getDate()));
+                lastParsedDate = Instant.ofEpochMilli(data.get(i).getDate());
+            }
         }
         return ret;
     }
@@ -100,7 +138,8 @@ public class DataCorrection {
 
         // Representierbarer Start generieren (Fehlerrate des ISGs)
         Instant representalStart = start;
-        Instant date = start.minus(1, ChronoUnit.DAYS);
+        Instant firstDate = Instant.ofEpochMilli(data.get(0).getDate());
+        Instant date = firstDate.minus(1, ChronoUnit.DAYS);
 
         // Nötige Variablen initialisieren
         List<ValueDto> ret = new ArrayList<>();
@@ -109,6 +148,10 @@ public class DataCorrection {
 
         // Über die Werte iterieren und die Werte auf den Vortag datieren
         for (ValueDto datum : data.stream().filter(valueDto -> valueDto.getDate() >= start.toEpochMilli()).collect(Collectors.toList())) {
+
+            if (datum.getValue() == null || datum.getValue().isEmpty()) {
+                continue;
+            }
 
             if (date.isAfter(end)) {
                 break;
@@ -140,18 +183,22 @@ public class DataCorrection {
             if (min.get().getDate() > start.toEpochMilli()) {
                 // Auffüllen
                 Optional<ValueDto> beforeFirstValidValue = data.stream().filter(valueDto -> valueDto.getDate() < start.toEpochMilli()).max(Comparator.comparingLong(ValueDto::getDate));
-                BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
-                for (Instant instant = date; instant.toEpochMilli() < (min.get().getDate()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
-                    ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
+                if (beforeFirstValidValue.isPresent()) {
+                    BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
+                    for (Instant instant = date; instant.toEpochMilli() < (min.get().getDate()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
+                        ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
+                    }
                 }
             }
         } else {
             // Gar kein Wert geschrieben
             // => fuer das gesamte Intervall den letzten gefundenen Wert annehmen
             Optional<ValueDto> beforeFirstValidValue = data.stream().filter(valueDto -> valueDto.getDate() < start.toEpochMilli()).max(Comparator.comparingLong(ValueDto::getDate));
-            BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
-            for (Instant instant = date; instant.toEpochMilli() < (end.toEpochMilli()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
-                ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
+            if (beforeFirstValidValue.isPresent()) {
+                BigDecimal parsedValue = parseDataFromValueDtoToBigDecimal(beforeFirstValidValue.get().getValue());
+                for (Instant instant = date; instant.toEpochMilli() < (end.toEpochMilli()); instant = instant.plus(interval, ChronoUnit.MILLIS)) {
+                    ret.add(new ValueDto("" + parsedValue.doubleValue(), instant.toEpochMilli()));
+                }
             }
         }
         return ret;

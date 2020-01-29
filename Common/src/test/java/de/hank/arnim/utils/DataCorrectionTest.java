@@ -3,11 +3,11 @@ package de.hank.arnim.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hanke.arnim.common.dtos.MonthViewDataDto;
 import de.hanke.arnim.common.dtos.PreparedDataDto;
+import de.hanke.arnim.common.dtos.Raster;
 import de.hanke.arnim.common.dtos.ValueDtoMitEinheit;
 import de.hanke.arnim.common.lang.DisplayedNames;
 import de.hanke.arnim.common.ValueDto;
 import de.hanke.arnim.common.utils.DataCorrection;
-import de.hanke.arnim.common.utils.Raster;
 import de.hanke.arnim.common.utils.SeriesActions;
 import org.junit.Test;
 
@@ -46,8 +46,8 @@ public class DataCorrectionTest {
         PreparedDataDto preparedDataDto = mapper.readValue(reinterpretedDataAsString, PreparedDataDto.class);
 
         SeriesActions seriesActions = new SeriesActions();
-        Map<String, List<ValueDto>> stringListMapPT15_SEC = seriesActions.preparingDataForFurtherUse(values, start, end, Raster.PT15_SEC);
-        Map<String, List<ValueDto>> stringListMapPT1_DAY = seriesActions.preparingDataForFurtherUse(values, start, end, Raster.PT1_DAY);
+        Map<String, List<ValueDto>> stringListMapPT15_SEC = seriesActions.preparingDataForFurtherUse(values, start, end, Raster.PT15S);
+        Map<String, List<ValueDto>> stringListMapPT1_DAY = seriesActions.preparingDataForFurtherUse(values, start, end, Raster.PT1D);
 
         HashMap<String, String> displayedNamesToTSName = new HashMap<>();
         DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME.entrySet().stream().forEach(stringStringEntry -> displayedNamesToTSName.put(stringStringEntry.getValue(), stringStringEntry.getKey()));

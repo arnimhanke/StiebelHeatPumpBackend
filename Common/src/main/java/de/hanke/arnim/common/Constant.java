@@ -1,5 +1,8 @@
 package de.hanke.arnim.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by arnim on 12/30/17.
  */
@@ -61,5 +64,51 @@ public class Constant {
     public static final String ES_TYPE_DS_NEBENVERSIONSNUMMER = "DS_NEBENVERSIONSNUMMER";
     public static final String ES_TYPE_DS_REVISIONSNUMMER = "DS_REVISIONSNUMMER";
     public static final String ES_TYPE_DS_OK = "DS_OK";
+
+    public final static String[] ALL_INDEXES = new String[]{ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_TAG,
+            ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_SUMME,
+            ES_TYPE_IW_WAERMEMENGE_NHZ_HEIZEN_SUMME,
+            ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG,
+            ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME,
+            ES_TYPE_IW_VD_HEIZEN,
+            ES_TYPE_IW_VD_KUEHLEN,
+            ES_TYPE_IW_NHZ_1,
+            ES_TYPE_IW_NHZ_2,
+            ES_TYPE_IW_NHZ_1_DURCH_2,
+            ES_TYPE_IW_VERDICHTER,
+            ES_TYPE_IA_AUSSENTEMPERATUR,
+            ES_TYPE_IA_ISTTEMPERATUR_HK_1,
+            ES_TYPE_IA_SOLLTEMPERATUR_HK_1,
+            ES_TYPE_IA_VORLAUFISTTEMPERATUR_WP,
+            ES_TYPE_IA_VORLAUFISTTEMPERATUR_NHZ,
+            ES_TYPE_IA_RUECKLAUFISTTEMPERATUR,
+            ES_TYPE_IA_PUFFERISTTEMPERATUR,
+            ES_TYPE_IA_PUFFERSOLLTEMPERATUR,
+            ES_TYPE_IA_HEIZUNGSDRUCK,
+            ES_TYPE_IA_VOLUMENSTROM,
+            ES_TYPE_IA_ANLAGENFROST,
+            ES_TYPE_IA_ISTTEMPERATUR_FEK,
+            ES_TYPE_IA_SOLLTEMPERATUR_FEK,
+            ES_TYPE_IA_RAUMFEUCHTE,
+            ES_TYPE_IA_TAUPUNKTTEMPERATUR,
+            ES_TYPE_IA_SOLLTEMPERATUR_GEBLAESE,
+            ES_TYPE_IA_QUELLENTEMPERATUR,
+            ES_TYPE_IA_QUELLENDRUCK,
+            ES_TYPE_IA_ISTTEMPERATUR_GEBLAESE,
+            ES_TYPE_DA_HEIZKREIS_1_PUMPE,
+            ES_TYPE_DA_HEIZEN,
+            ES_TYPE_DA_VERDICHTER,
+            ES_TYPE_DA_HEIZKREISPUMPE,
+            ES_TYPE_DA_QUELLENPUMPE,
+            ES_TYPE_DA_PUFFERLADEPUMPE,
+            ES_TYPE_DA_VERDICHTERSCHUETZ,
+            ES_TYPE_DA_RESTSTILLSTAND,
+            ES_TYPE_DS_WPM_3i,
+            ES_TYPE_DS_SOFTWARE,
+            ES_TYPE_DS_SG_READY,
+            ES_TYPE_DS_HAUPTVERSIONSNUMMER,
+            ES_TYPE_DS_NEBENVERSIONSNUMMER,
+            ES_TYPE_DS_REVISIONSNUMMER,
+            ES_TYPE_DS_OK};
 
 }
