@@ -15,7 +15,17 @@ public class DataCorrection {
 
     public static BigDecimal parseDataFromValueDtoToBigDecimal(String dataAsString) {
         try {
-            String fixedString = dataAsString.replace(",", ".").replace("kWh", "").replace("MWh", "").replace("h", "").trim();
+            String fixedString = dataAsString
+                    .replace(",", ".")
+                    .replace("kWh", "")
+                    .replace("MWh", "")
+                    .replace("h", "")
+                    .replace("°C", "")
+                    .replace("bar", "")
+                    .replace("l/min", "")
+                    .replace("%", "")
+                    .replace("min", "")
+                    .trim();
             return new BigDecimal(fixedString);
         } catch (Exception e) {
             return BigDecimal.ZERO;

@@ -24,13 +24,19 @@ public class MigrateElasticValuesToInfluxDB {
         Instant start = Instant.parse("2017-12-30T23:00:00.00Z");
         Instant end = Instant.parse("2019-08-31T23:00:00.00Z");
 
-        for (String index : Constant.ALL_INDEXES) {
+        ArrayList<String> allIndexes = new ArrayList<>();
+
+        for (String allIndex : Constant.ALL_INDEXES) {
+            allIndexes.add(Constant.ES_INDEX_PREFIX + allIndex.toLowerCase());
+        }
+
+        for (String index : allIndexes.subList(0, 10)) {
 
             //String index = Constant.ES_TYPE_IW_VD_HEIZEN;
             InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPump");
             System.out.println("Starte mit Index " + index);
             long startPerformance = System.currentTimeMillis();
-            Map<String, List<ValueDto>> dataFromIndexInInterval = elasticSearchUtils.getDataFromIndexInInterval(Collections.singletonList(Constant.ES_INDEX_PREFIX + index.toLowerCase()), start, end);
+            Map<String, List<ValueDto>> dataFromIndexInInterval = elasticSearchUtils.getDataFromIndexInInterval(Collections.singletonList(index), start, end);
             //Map<String, List<ValueDto>> dataFromIndexInIntervalToLowerCase = new HashMap<>();
             //dataFromIndexInInterval.keySet().forEach(s -> dataFromIndexInIntervalToLowerCase.put(Constant.ES_INDEX_PREFIX + s.toLowerCase(), dataFromIndexInInterval.get(s)));
 
@@ -41,7 +47,6 @@ public class MigrateElasticValuesToInfluxDB {
                 ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
                 List<ValueDto> valuesFromElastic = stringListMap.get(tsName);
                 for (ValueDto valueDto : valuesFromElastic) {
-
                     values.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), Double.parseDouble(valueDto.getValue())));
                 }
                 PeriodicTimeseries tsDto = new PeriodicTimeseries(tsName, Raster.PT15S, values);
