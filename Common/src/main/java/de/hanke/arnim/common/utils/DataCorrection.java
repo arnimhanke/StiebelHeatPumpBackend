@@ -28,7 +28,15 @@ public class DataCorrection {
                     .trim();
             return new BigDecimal(fixedString);
         } catch (Exception e) {
-            return BigDecimal.ZERO;
+            if(dataAsString == null) {
+                return BigDecimal.ZERO;
+            } else {
+                if(dataAsString.isEmpty()) {
+                    return BigDecimal.ZERO;
+                } else {
+                    return BigDecimal.ONE;
+                }
+            }
         }
     }
 

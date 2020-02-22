@@ -221,6 +221,12 @@ public class ElasticSearchUtils {
             }
             e.printStackTrace();
             return false;
+        } finally {
+            try {
+                client.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 }

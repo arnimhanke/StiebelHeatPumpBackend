@@ -30,6 +30,7 @@ public class AggregationTypes {
         aggregationConfig.put("heizungssuite_ia_heizungsdruck", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_isttemperatur_fek", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_isttemperatur_gebläse", AggregationType.AVERAGE);
+        aggregationConfig.put("heizungssuite_ia_isttemperatur_geblaese", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_isttemperatur_hk_1", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_pufferisttemperatur", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_puffersolltemperatur", AggregationType.AVERAGE);
@@ -37,8 +38,10 @@ public class AggregationTypes {
         aggregationConfig.put("heizungssuite_ia_quellentemperatur", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_raumfeuchte", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_rücklaufisttemperatur", AggregationType.AVERAGE);
+        aggregationConfig.put("heizungssuite_ia_ruecklaufisttemperatur", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_solltemperatur_fek", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_solltemperatur_gebläse", AggregationType.AVERAGE);
+        aggregationConfig.put("heizungssuite_ia_solltemperatur_geblaese", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_solltemperatur_hk_1", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_taupunkttemperatur", AggregationType.AVERAGE);
         aggregationConfig.put("heizungssuite_ia_volumenstrom", AggregationType.AVERAGE);
@@ -52,6 +55,7 @@ public class AggregationTypes {
         aggregationConfig.put("heizungssuite_iw_nhz_2", AggregationType.MAX);
         aggregationConfig.put("heizungssuite_iw_vd_heizen", AggregationType.MAX);
         aggregationConfig.put("heizungssuite_iw_vd_kühlen", AggregationType.MAX);
+        aggregationConfig.put("heizungssuite_iw_vd_kuehlen", AggregationType.MAX);
         aggregationConfig.put("heizungssuite_iw_verdichter", AggregationType.MAX);
         aggregationConfig.put("heizungssuite_iw_waermemenge_nhz_heizen_summe", AggregationType.DIV_VORTAG);
         aggregationConfig.put("heizungssuite_iw_waermemenge_vd_heizen_summe", AggregationType.DIV_VORTAG);
