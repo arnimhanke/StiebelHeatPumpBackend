@@ -22,10 +22,8 @@ public class InfluxDBUtils {
     private final String DATABASEURL = "http://192.168.178.122:8086";
     private final String USERNAME = "root";
     private final String PASSWORD = "root";
-
-
-    private String dbName;
     protected InfluxDB influxDB;
+    private String dbName;
 
     public InfluxDBUtils(String dataBaseName) {
         OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder()
@@ -35,9 +33,9 @@ public class InfluxDBUtils {
         this.influxDB = InfluxDBFactory.connect(DATABASEURL, USERNAME, PASSWORD, okHttpClientBuilder);
         this.influxDB.setLogLevel(InfluxDB.LogLevel.NONE);
         influxDB.setRetentionPolicy("autogen");
-        influxDB.enableBatch(10000, 20, TimeUnit.MILLISECONDS);
+        //influxDB.enableBatch(1000, 100, TimeUnit.MILLISECONDS);
         this.dbName = dataBaseName;
-        if(!influxDB.databaseExists(dbName)) {
+        if (!influxDB.databaseExists(dbName)) {
             influxDB.createDatabase(dbName);
         }
     }
@@ -52,7 +50,7 @@ public class InfluxDBUtils {
         Instant start = Instant.parse("2017-12-31T23:00:00.00Z");
         Instant current = Instant.from(start);
         Instant end = Instant.parse("2018-01-01T23:00:00.00Z");
-        while(current.isBefore(end)) {
+        while (current.isBefore(end)) {
             PeriodicTimeseriesValue value = new PeriodicTimeseriesValue();
             value.setTime(current);
             value.setValue(20);
@@ -60,11 +58,11 @@ public class InfluxDBUtils {
 
             current = current.plusSeconds(15); // 15 Minuten
         }
-        System.out.println("Dauer für das Erstellen der Werte "+ (System.currentTimeMillis() - startMillis));
+        System.out.println("Dauer für das Erstellen der Werte " + (System.currentTimeMillis() - startMillis));
 
         startMillis = System.currentTimeMillis();
         influxDBUtils.insertTimeSeries(new PeriodicTimeseries(TS_ID, Raster.PT15S, values));
-        System.out.println("Dauer für das Schreiben der Werte in die DB "+ (System.currentTimeMillis() - startMillis));
+        System.out.println("Dauer für das Schreiben der Werte in die DB " + (System.currentTimeMillis() - startMillis));
 
         influxDBUtils.influxDB.close();
     }
@@ -72,28 +70,25 @@ public class InfluxDBUtils {
     public boolean insertTimeSeries(PeriodicTimeseries tsDto) {// tsId, raster, list of values(timstamp, value)
         this.influxDB.setDatabase(this.dbName);
         try {
-            /**BatchPoints batchPoints = BatchPoints
+
+            BatchPoints.Builder autogen = BatchPoints
                     .database(this.dbName)
-                    .retentionPolicy("autogen")
-                    .build();
-*/
+                    .retentionPolicy("autogen");
+
             tsDto.getValues().forEach(val -> {
                 Point point = Point.measurement(tsDto.getTsId())
                         .time(val.getTime().toEpochMilli(), TimeUnit.MILLISECONDS)
                         .addField("value", val.getValue())
                         .build();
+                //influxDB.write(point);
 
-                //add the actual point to PointList
-                influxDB.write(point);
-                //batchPoints.point(point);
+                autogen.point(point);
             });
-
-            // write all points to the database
-//            influxDB.write(batchPoints);
-
-            this.influxDB.close();
+            BatchPoints build = autogen.build();
+            influxDB.write(build);
             return true;
         } catch (Exception e) {
+            System.out.println("Fehler bei Index " + tsDto.getTsId());
             e.printStackTrace();
             return false;
         }
@@ -113,7 +108,11 @@ public class InfluxDBUtils {
         for (QueryResult.Result queryResult2 : queryResult.getResults()) {
 
             // Einzelne Zeitreihen
+            if (queryResult2.getSeries() == null) continue;
             for (QueryResult.Series series : queryResult2.getSeries()) {
+                if (series == null) {
+                    continue;
+                }
                 List<String> columns = series.getColumns();
                 ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
                 PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, values);
@@ -127,7 +126,7 @@ public class InfluxDBUtils {
                         Object valueForColumn = value.get(i);
                         try {
                             // Leerzeichen durch Unterstrich ersetzen
-                            if(!(valueForColumn instanceof String)) {
+                            if (!(valueForColumn instanceof String)) {
                                 periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
                             } else {
                                 periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn));
@@ -144,4 +143,9 @@ public class InfluxDBUtils {
         return result;
     }
 
+    public void close() {
+
+        this.influxDB.close();
+
+    }
 }
