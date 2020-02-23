@@ -25,6 +25,7 @@ public class DataCorrection {
                     .replace("l/min", "")
                     .replace("%", "")
                     .replace("min", "")
+                    .replaceAll("[^0-9.]", "")
                     .trim();
             return new BigDecimal(fixedString);
         } catch (Exception e) {

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class InfluxDBUtils {
+public class InfluxDBUtils implements AutoCloseable {
 
     private final String DATABASEURL = "http://192.168.178.122:8086";
     private final String USERNAME = "root";
@@ -143,6 +143,7 @@ public class InfluxDBUtils {
         return result;
     }
 
+    @Override
     public void close() {
 
         this.influxDB.close();

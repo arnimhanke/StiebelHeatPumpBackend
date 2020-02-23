@@ -9,16 +9,11 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
-import org.elasticsearch.client.*;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.elasticsearch.index.reindex.DeleteByQueryAction;
-import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.search.Scroll;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -26,7 +21,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -111,6 +105,7 @@ public class ElasticSearchUtils {
         Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
         searchRequest.scroll(scroll);
         searchSourceBuilder.query(QueryBuilders.rangeQuery("date").gte(from).lte(to));
+
         try (RestHighLevelClient client = generateESRestClient()) {
             SearchResponse searchResponse = client.search(searchRequest);
             String scrollId = searchResponse.getScrollId();
@@ -209,7 +204,7 @@ public class ElasticSearchUtils {
 
     public boolean putValueIntoElasticsearch(String value, long time, String esType) {
 
-        try(RestHighLevelClient client = generateESRestClient()) {
+        try (RestHighLevelClient client = generateESRestClient()) {
             ValueDto lastValueDtoForId = lastValues.get(esType);
             if (lastValueDtoForId == null || !lastValueDtoForId.getValue().equals(value)) {
                 ValueDto valueDto = new ValueDto(value, time);
@@ -230,25 +225,48 @@ public class ElasticSearchUtils {
 
         try (RestHighLevelClient client = generateESRestClient()) {
 
+            List<String> ids = new ArrayList<>();
+            String type = "";
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.indices(key);
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
             searchSourceBuilder.size(10);
 
             searchRequest.source(searchSourceBuilder);
-            searchSourceBuilder.query(QueryBuilders.rangeQuery("date").gte(start).lte(end));
+            Scroll scroll = new Scroll(TimeValue.timeValueMinutes(1L));
+            searchRequest.scroll(scroll);
+            searchSourceBuilder.query(QueryBuilders.rangeQuery("date").gte(start.toEpochMilli()).lte(end.toEpochMilli()));
 
-            SearchResponse search = client.search(searchRequest);
-            SearchHits hits = search.getHits();
+            SearchResponse searchResponse = client.search(searchRequest);
+            String scrollId = searchResponse.getScrollId();
+            SearchHit[] searchHits = searchResponse.getHits().getHits();
+
+            for (SearchHit searchHit : searchHits) {
+                // add ValueDtos to list
+                ids.add(searchHit.getId());
+                type = searchHit.getType();
+            }
+
+            while (searchHits.length > 0) {
+                SearchScrollRequest scrollRequest = new SearchScrollRequest(scrollId);
+                scrollRequest.scroll(scroll);
+                searchResponse = client.searchScroll(scrollRequest);
+                scrollId = searchResponse.getScrollId();
+                searchHits = searchResponse.getHits().getHits();
+                for (SearchHit searchHit : searchHits) {
+                    // add ValueDtos to list
+                    ids.add(searchHit.getId());
+                }
+            }
+
+
             BulkRequest bulkRequest = new BulkRequest();
 
-            // IDs zum Loeschen sammeln
-            for (SearchHit hit : hits) {
-                DeleteRequest deleteRequest = new DeleteRequest();
-                deleteRequest.id(hit.getId());
-                bulkRequest.add(deleteRequest);
-
+            for (String id : ids) {
+                DeleteRequest request = new DeleteRequest();
+                bulkRequest.add(request.id(id).type(type).index(key));
             }
+
             // alle Daten auf einmal loeschen
             client.bulk(bulkRequest);
 
