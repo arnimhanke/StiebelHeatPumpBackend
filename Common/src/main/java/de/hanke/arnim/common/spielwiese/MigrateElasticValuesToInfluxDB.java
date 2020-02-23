@@ -11,6 +11,7 @@ import de.hanke.arnim.common.utils.SeriesActions;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MigrateElasticValuesToInfluxDB {
 
@@ -26,7 +27,7 @@ public class MigrateElasticValuesToInfluxDB {
         }
 
         for (String index : allIndexes) {
-            InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpTest");
+            InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpCorrectedData");
             InfluxDBUtils influxDBUtilsRaw = new InfluxDBUtils("StiebelEltronHeatPumpRawDatas");
 
             System.out.println("Starte mit Index " + index);
@@ -70,7 +71,8 @@ public class MigrateElasticValuesToInfluxDB {
                     System.out.println(tsName + " - " + valuesFromElastic.size());
                     // Alle 100 Werte schreiben
                     for (int i = 1; i <= valuesFromElastic.size(); i++) {
-                        temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valuesFromElastic.get(i - 1).getDate()), Double.parseDouble(valuesFromElastic.get(i - 1).getValue())));
+                        temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valuesFromElastic.get(i - 1).getDate()),
+                                Double.parseDouble(valuesFromElastic.get(i - 1).getValue())));
                         if (i % 100 == 0) {
                             PeriodicTimeseries tsDto = new PeriodicTimeseries(ts, Raster.PT15S, new ArrayList<>(temp));
                             influxDBUtils.insertTimeSeries(tsDto);

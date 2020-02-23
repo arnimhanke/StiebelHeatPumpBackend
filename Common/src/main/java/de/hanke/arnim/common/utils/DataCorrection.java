@@ -87,7 +87,7 @@ public class DataCorrection {
         for (ValueDto valueDto : value) {
 
             String reinterpretedData;
-            if (valueDto.getValue() == null || valueDto.getValue().isEmpty()) {
+            if (valueDto.getValue() == null || valueDto.getValue().isEmpty() || valueDto.getValue().compareTo("0.0") == 0) {
                 reinterpretedData = "0";
             } else {
                 reinterpretedData = "1";
