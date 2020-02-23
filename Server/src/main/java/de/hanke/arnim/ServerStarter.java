@@ -29,6 +29,7 @@ public class ServerStarter {
     static ObjectMapper mapper = new ObjectMapper();
 
     public static void main(String[] args) {
+//        moveLastDatasToInfluxDB();
         startServer();
     }
 
@@ -97,11 +98,11 @@ public class ServerStarter {
             public void run() {
                 moveLastDatasToInfluxDB();
             }
-        }, 0, 1000 * 60 * 60);
+        }, 0, 1000 * 60 * 10); // Alle 10 Minuten
     }
 
 
-    private static void moveLastDatasToInfluxDB() {
+    public static void moveLastDatasToInfluxDB() {
 
         ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
 
@@ -110,29 +111,33 @@ public class ServerStarter {
         ArrayList<String> allIndexes = new ArrayList<>();
 
         for (String allIndex : Constant.ALL_INDEXES) {
-            allIndexes.add(allIndex.toLowerCase());
+            allIndexes.add(ES_INDEX_PREFIX + allIndex.toLowerCase());
         }
         // Letzte Daten
         Map<String, List<ValueDto>> dataFromIndexInInterval = elasticSearchUtils.getDataFromIndexInInterval(allIndexes, start, end);
 
         for (Map.Entry<String, List<ValueDto>> stringListEntry : dataFromIndexInInterval.entrySet()) {
-            String tsName = stringListEntry.getKey().replace("heizungssuite_", "");
+            String tsName = stringListEntry.getKey().replace("heizungssuite_", "")
+                    .replace("ü", "ue")
+                    .replace("ä", "ae")
+                    .replace("ö", "oe");
             List<PeriodicTimeseriesValue> temp = new ArrayList<>();
-
+            System.out.println("Fuer den Index " + stringListEntry.getKey() + " sind " + stringListEntry.getValue().size() + " Werte gefunden worden");
             for (ValueDto valueDto : stringListEntry.getValue()) {
                 temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
             }
 
-            InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpRawDatasTest");
-            boolean b = influxDBUtils.insertTimeSeries(new PeriodicTimeseries(tsName, Raster.PT15S, temp));
-            if (!b) {
-                System.out.println("Insert nicht erfolgreich von " + tsName);
-            } else {
-//                List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(tsName, start, end);
-//                // Kontrolle ob das kopieren erfolgreich war
-//                if (timeSeries.get(0).getValues().size() != dataFromIndexInInterval.size()) {
-//                    throw new IllegalArgumentException("zu wenig werte insertet");
-//                } else {
+            try (InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpRawDatas");) {
+
+                boolean b = influxDBUtils.insertTimeSeries(new PeriodicTimeseries(tsName, Raster.PT15S, temp));
+                if (!b) {
+                    System.out.println("Insert nicht erfolgreich von " + tsName);
+                } else {
+//                    List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(tsName, start, end);
+                    // Kontrolle ob das kopieren erfolgreich war
+//                    if (true || timeSeries.get(0).getValues().size() != dataFromIndexInInterval.size()) {
+//                        throw new IllegalArgumentException("zu wenig werte inserts");
+//                    } else {
 //                    try {
 //                        elasticSearchUtils.deleteDataInInterval(stringListEntry.getKey(), start, end);
 //                    } catch (Exception e) {
@@ -140,6 +145,7 @@ public class ServerStarter {
 //                        e.printStackTrace();
 //                    }
 //                }
+                }
             }
         }
     }
