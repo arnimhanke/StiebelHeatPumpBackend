@@ -96,7 +96,12 @@ public class ServerStarter {
         timerMoveData.schedule(new TimerTask() {
             @Override
             public void run() {
-                moveLastDatasToInfluxDB();
+                try {
+                    moveLastDatasToInfluxDB();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         }, 0, 1000 * 60 * 10); // Alle 10 Minuten
     }
@@ -106,7 +111,7 @@ public class ServerStarter {
 
         ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
 
-        Instant start = Instant.now().minusSeconds(60 * 60 * 24 * 7);
+        Instant start = Instant.now().minusSeconds(60 * 60 * 24 * 2);
         Instant end = Instant.now().plusSeconds(60 * 60 * 24);
         ArrayList<String> allIndexes = new ArrayList<>();
 
@@ -122,10 +127,21 @@ public class ServerStarter {
                     .replace("ä", "ae")
                     .replace("ö", "oe");
             List<PeriodicTimeseriesValue> temp = new ArrayList<>();
-            System.out.println("Fuer den Index " + stringListEntry.getKey() + " sind " + stringListEntry.getValue().size() + " Werte gefunden worden");
+//            System.out.println("Fuer den Index " + stringListEntry.getKey() + " sind " + stringListEntry.getValue().size() + " Werte gefunden worden");
             for (ValueDto valueDto : stringListEntry.getValue()) {
                 temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
             }
+
+            if(stringListEntry.getValue().size() == 0) {
+                continue;
+            }
+
+            // Das Werte-Intervall aus der DB extrahieren
+            ValueDto valueDtoMin = stringListEntry.getValue().stream().min(Comparator.comparingLong(ValueDto::getDate)).get();
+            ValueDto valueDtoMax = stringListEntry.getValue().stream().max(Comparator.comparingLong(ValueDto::getDate)).get();
+
+            Instant minDateFromElasticsearch = Instant.ofEpochMilli(valueDtoMin.getDate());
+            Instant maxDateFromElasticsearch = Instant.ofEpochMilli(valueDtoMax.getDate());
 
             try (InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpRawDatas");) {
 
@@ -133,18 +149,29 @@ public class ServerStarter {
                 if (!b) {
                     System.out.println("Insert nicht erfolgreich von " + tsName);
                 } else {
-//                    List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(tsName, start, end);
+                    List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(tsName, minDateFromElasticsearch, maxDateFromElasticsearch);
                     // Kontrolle ob das kopieren erfolgreich war
-//                    if (true || timeSeries.get(0).getValues().size() != dataFromIndexInInterval.size()) {
-//                        throw new IllegalArgumentException("zu wenig werte inserts");
-//                    } else {
-//                    try {
-//                        elasticSearchUtils.deleteDataInInterval(stringListEntry.getKey(), start, end);
-//                    } catch (Exception e) {
-//                        System.out.println("Fehler beim Löschen der Daten von " + stringListEntry.getKey() + " fuer das Intervall " + start.toString() + " bis " + end);
-//                        e.printStackTrace();
-//                    }
-//                }
+
+
+                    long count = temp.stream().filter(periodicTimeseriesValue -> periodicTimeseriesValue.getTime().isBefore(end) && (periodicTimeseriesValue.getTime().isAfter(start) || periodicTimeseriesValue.getTime().compareTo(start) == 0)).count();
+
+
+                    // Sind ueberhaupt Werte in dem relevanten Zeitraum vorhanden?
+                    if (count == 0) {
+                        System.out.println("Keine Werte im Zeitraum relevant fuer " + tsName);
+                    } else if (timeSeries == null || timeSeries.size() == 0) {
+                        System.out.println("InfluxDB hat keine Werte fuer " + tsName);
+                    } else if (timeSeries.get(0).getValues().size() != temp.size()) {
+                        System.out.println("Zu wenig Werte gefunden fuer " + tsName);
+                    } else {
+//                        System.out.println("Loeschen der Werte fuer " + tsName + " im Intervall " + minDateFromElasticsearch + " - " + maxDateFromElasticsearch);
+                        try {
+                            elasticSearchUtils.deleteDataInInterval(stringListEntry.getKey(), minDateFromElasticsearch, maxDateFromElasticsearch);
+                        } catch (Exception e) {
+                            System.out.println("Fehler beim Löschen der Daten von " + stringListEntry.getKey() + " fuer das Intervall " + start.toString() + " bis " + end);
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }

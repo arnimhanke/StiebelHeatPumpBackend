@@ -35,9 +35,6 @@ public class InfluxDBUtils implements AutoCloseable {
         influxDB.setRetentionPolicy("autogen");
         //influxDB.enableBatch(1000, 100, TimeUnit.MILLISECONDS);
         this.dbName = dataBaseName;
-        if (!influxDB.databaseExists(dbName)) {
-            influxDB.createDatabase(dbName);
-        }
     }
 
     public static void main(String[] args) {

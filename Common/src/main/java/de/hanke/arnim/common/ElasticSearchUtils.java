@@ -25,6 +25,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.hanke.arnim.common.Constant.ES_INDEX_PREFIX;
+
 public class ElasticSearchUtils {
 
     public final boolean cacheEnabled = false;
@@ -155,31 +157,35 @@ public class ElasticSearchUtils {
     }
 
     public Map<String, ValueDto> getLastValueDtosForIndicies(List<String> indicies) {
-        Map<String, ValueDto> ret = new LinkedHashMap<>();
+        if (lastValues != null && !lastValues.isEmpty()) {
+            return lastValues;
+        } else {
+            Map<String, ValueDto> ret = new LinkedHashMap<>();
 
-        indicies.forEach(index -> {
-            SearchRequest searchRequest = new SearchRequest();
-            searchRequest.indices(index);
-            SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.size(1);
-            searchSourceBuilder.sort("date", SortOrder.DESC);
-            searchRequest.source(searchSourceBuilder);
-            try (RestHighLevelClient client = generateESRestClient()) {
-                SearchResponse search = client.search(searchRequest);
-                SearchHit[] hits = search.getHits().getHits();
-                if (hits.length == 1) {
-                    ValueDto valueDto = mapper.readValue(hits[0].getSourceAsString(), ValueDto.class);
-                    ret.put(hits[0].getType(), valueDto);
-                } else {
-                    throw new IOException("Mehr als ein Ergebnis gefunden, obwohl die auf eine Länge von eins eingegrenzt wurde.");
+            indicies.forEach(index -> {
+                SearchRequest searchRequest = new SearchRequest();
+                searchRequest.indices(index);
+                SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+                searchSourceBuilder.size(1);
+                searchSourceBuilder.sort("date", SortOrder.DESC);
+                searchRequest.source(searchSourceBuilder);
+                try (RestHighLevelClient client = generateESRestClient()) {
+                    SearchResponse search = client.search(searchRequest);
+                    SearchHit[] hits = search.getHits().getHits();
+                    if (hits.length == 1) {
+                        ValueDto valueDto = mapper.readValue(hits[0].getSourceAsString(), ValueDto.class);
+                        ret.put(hits[0].getType(), valueDto);
+                    } else {
+                        throw new IOException("Mehr als ein Ergebnis gefunden, obwohl die auf eine Länge von eins eingegrenzt wurde.");
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            });
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-        return ret;
+            return ret;
+        }
     }
 
 
@@ -208,7 +214,7 @@ public class ElasticSearchUtils {
             ValueDto lastValueDtoForId = lastValues.get(esType);
             if (lastValueDtoForId == null || !lastValueDtoForId.getValue().equals(value)) {
                 ValueDto valueDto = new ValueDto(value, time);
-                IndexRequest source = new IndexRequest("heizungssuite_" + esType.toLowerCase(), esType, esType + "-" + time).source(mapper.writeValueAsString(valueDto), XContentType.JSON);
+                IndexRequest source = new IndexRequest(ES_INDEX_PREFIX + esType.toLowerCase(), esType, esType + "-" + time).source(mapper.writeValueAsString(valueDto), XContentType.JSON);
                 IndexResponse index = client.index(source);
                 lastValues.put(esType, valueDto);
                 return true;
@@ -239,12 +245,17 @@ public class ElasticSearchUtils {
 
             SearchResponse searchResponse = client.search(searchRequest);
             String scrollId = searchResponse.getScrollId();
-            SearchHit[] searchHits = searchResponse.getHits().getHits();
+            SearchHits hits = searchResponse.getHits();
+            long totalHits = hits.getTotalHits();
+            SearchHit[] searchHits = hits.getHits();
 
             for (SearchHit searchHit : searchHits) {
                 // add ValueDtos to list
-                ids.add(searchHit.getId());
-                type = searchHit.getType();
+                ValueDto valueDto = mapper.readValue(searchHit.getSourceAsString(), ValueDto.class);
+                if (valueDto.getDate() >= start.toEpochMilli() && valueDto.getDate() < end.toEpochMilli()) {
+                    type = searchHit.getType();
+                    ids.add(searchHit.getId());
+                }
             }
 
             while (searchHits.length > 0) {
@@ -255,7 +266,10 @@ public class ElasticSearchUtils {
                 searchHits = searchResponse.getHits().getHits();
                 for (SearchHit searchHit : searchHits) {
                     // add ValueDtos to list
-                    ids.add(searchHit.getId());
+                    ValueDto valueDto = mapper.readValue(searchHit.getSourceAsString(), ValueDto.class);
+                    if (valueDto.getDate() >= start.toEpochMilli() && valueDto.getDate() < end.toEpochMilli()) {
+                        ids.add(searchHit.getId());
+                    }
                 }
             }
 
@@ -267,6 +281,7 @@ public class ElasticSearchUtils {
                 bulkRequest.add(request.id(id).type(type).index(key));
             }
 
+            System.out.println("Es werden " + ids.size() + " Eintraege von " + key + " geloescht von " + totalHits);
             // alle Daten auf einmal loeschen
             client.bulk(bulkRequest);
 
