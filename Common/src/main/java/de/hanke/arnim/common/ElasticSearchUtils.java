@@ -273,6 +273,9 @@ public class ElasticSearchUtils {
                 }
             }
 
+            if(ids.size() == 0) {
+                return;
+            }
 
             BulkRequest bulkRequest = new BulkRequest();
 

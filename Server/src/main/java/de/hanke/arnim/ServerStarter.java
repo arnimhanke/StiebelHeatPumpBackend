@@ -63,14 +63,34 @@ public class ServerStarter {
                 Instant to = Instant.parse(toAsString);
 
                 System.out.println("load Data");
-                Map<String, List<ValueDto>> lastValueDtosForIndicies = elasticSearchUtils.getDataFromIndexInInterval(INDICIES_FOR_MONTHVIEW, from, to);
-                System.out.println("Dto generieren");
-                MonthViewDataDto dto = new MonthViewDataDto(lastValueDtosForIndicies, DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME);
-                return mapper.writeValueAsString(dto);
+                try (InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpCorrectedData");) {
+                    Map<String, List<ValueDto>> valueDtosForIndiciesInInterval = new HashMap<>();
+                    for (String s : INDICIES_FOR_MONTHVIEW) {
+                        // Werte aus Influx lesen
+                        List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(
+                                s.replace(ES_INDEX_PREFIX, "")
+                                .replace("ü", "ue")
+                                .replace("ä", "ae")
+                                .replace("ö", "oe"), from, to);
+                        if (timeSeries.size() == 1) {
+                            List<ValueDto> values = new ArrayList<>();
+                            PeriodicTimeseries periodicTimeseries = timeSeries.get(0);
+                            for (PeriodicTimeseriesValue value : periodicTimeseries.getValues()) {
+                                values.add(new ValueDto("" + value.getValue(), value.getTime().toEpochMilli()));
+                            }
+                            valueDtosForIndiciesInInterval.put(ES_INDEX_PREFIX + periodicTimeseries.getTsId(), values);
+                        }
+                    }
+                    MonthViewDataDto dto = new MonthViewDataDto(valueDtosForIndiciesInInterval, DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME);
+                    return mapper.writeValueAsString(dto);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return "Fehler " + e.getMessage();
+                }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 e.printStackTrace();
-                return "";
+                return "Fehler " + e.getMessage();
             }
         });
 
@@ -132,7 +152,7 @@ public class ServerStarter {
                 temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
             }
 
-            if(stringListEntry.getValue().size() == 0) {
+            if (stringListEntry.getValue().size() == 0) {
                 continue;
             }
 
