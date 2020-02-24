@@ -1,9 +1,9 @@
 package de.hank.arnim.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.hanke.arnim.TimeSeriesToolSet.Raster;
 import de.hanke.arnim.common.dtos.MonthViewDataDto;
 import de.hanke.arnim.common.dtos.PreparedDataDto;
-import de.hanke.arnim.common.dtos.Raster;
 import de.hanke.arnim.common.dtos.ValueDtoMitEinheit;
 import de.hanke.arnim.common.lang.DisplayedNames;
 import de.hanke.arnim.common.ValueDto;

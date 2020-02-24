@@ -1,22 +1,12 @@
 package de.hanke.arnim;
 
-import de.hanke.arnim.common.Constant;
-import de.hanke.arnim.common.ElasticSearchUtils;
-import de.hanke.arnim.common.InfluxDBUtils;
-import de.hanke.arnim.common.ValueDto;
-import de.hanke.arnim.common.dtos.PeriodicTimeseries;
-import de.hanke.arnim.common.dtos.PeriodicTimeseriesValue;
-import de.hanke.arnim.common.dtos.Raster;
 import de.hanke.arnim.heizung.*;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
-
-import static de.hanke.arnim.common.utils.DataCorrection.parseDataFromValueDtoToBigDecimal;
 
 public class CollectorStarter {
 

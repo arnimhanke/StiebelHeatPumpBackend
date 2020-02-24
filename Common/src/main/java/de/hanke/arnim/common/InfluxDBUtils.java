@@ -1,8 +1,8 @@
 package de.hanke.arnim.common;
 
-import de.hanke.arnim.common.dtos.PeriodicTimeseries;
-import de.hanke.arnim.common.dtos.PeriodicTimeseriesValue;
-import de.hanke.arnim.common.dtos.Raster;
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
+import de.hanke.arnim.TimeSeriesToolSet.Raster;
 import okhttp3.OkHttpClient;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;

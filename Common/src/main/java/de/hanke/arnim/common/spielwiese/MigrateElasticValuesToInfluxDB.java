@@ -1,17 +1,15 @@
 package de.hanke.arnim.common.spielwiese;
 
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
+import de.hanke.arnim.TimeSeriesToolSet.Raster;
 import de.hanke.arnim.common.Constant;
 import de.hanke.arnim.common.InfluxDBUtils;
 import de.hanke.arnim.common.ValueDto;
-import de.hanke.arnim.common.dtos.PeriodicTimeseries;
-import de.hanke.arnim.common.dtos.PeriodicTimeseriesValue;
-import de.hanke.arnim.common.dtos.Raster;
 import de.hanke.arnim.common.utils.DataCorrection;
-import de.hanke.arnim.common.utils.SeriesActions;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MigrateElasticValuesToInfluxDB {
 

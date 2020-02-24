@@ -1,5 +1,6 @@
 package de.hanke.arnim.common.dtos;
 
+import de.hanke.arnim.TimeSeriesToolSet.Raster;
 import org.influxdb.annotation.Column;
 import org.influxdb.annotation.Measurement;
 

@@ -49,6 +49,11 @@
             <version>1.0.3.RELEASE</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>de.hanke.arnim</groupId>
+            <artifactId>TimeSeriesToolSet</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

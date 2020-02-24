@@ -1,14 +1,14 @@
 package de.hanke.arnim;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
+import de.hanke.arnim.TimeSeriesToolSet.Raster;
 import de.hanke.arnim.common.Constant;
 import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.InfluxDBUtils;
 import de.hanke.arnim.common.ValueDto;
 import de.hanke.arnim.common.dtos.MonthViewDataDto;
-import de.hanke.arnim.common.dtos.PeriodicTimeseries;
-import de.hanke.arnim.common.dtos.PeriodicTimeseriesValue;
-import de.hanke.arnim.common.dtos.Raster;
 import de.hanke.arnim.common.lang.DisplayedNames;
 
 import java.time.Instant;

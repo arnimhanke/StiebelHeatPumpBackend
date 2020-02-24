@@ -1,7 +1,7 @@
 package de.hanke.arnim.common.utils;
 
+import de.hanke.arnim.TimeSeriesToolSet.Raster;
 import de.hanke.arnim.common.ValueDto;
-import de.hanke.arnim.common.dtos.Raster;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
