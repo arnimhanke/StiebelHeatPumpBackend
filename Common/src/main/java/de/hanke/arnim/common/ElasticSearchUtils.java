@@ -176,7 +176,7 @@ public class ElasticSearchUtils {
                         ValueDto valueDto = mapper.readValue(hits[0].getSourceAsString(), ValueDto.class);
                         ret.put(hits[0].getType(), valueDto);
                     } else {
-                        throw new IOException("Mehr als ein Ergebnis gefunden, obwohl die auf eine Länge von eins eingegrenzt wurde.");
+                        System.out.println(hits.length + " Ergebnis(e) gefunden, obwohl die auf eine Länge von eins eingegrenzt wurde.");
                     }
 
                 } catch (IOException e) {

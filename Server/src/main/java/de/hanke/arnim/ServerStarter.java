@@ -13,6 +13,7 @@ import de.hanke.arnim.common.lang.DisplayedNames;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.hanke.arnim.common.Constant.ES_INDEX_PREFIX;
 import static de.hanke.arnim.common.utils.DataCorrection.parseDataFromValueDtoToBigDecimal;
@@ -40,6 +41,25 @@ public class ServerStarter {
             response.header("Access-Control-Allow-Origin", "*");
             try {
                 Map<String, ValueDto> lastValueDtosForIndicies = elasticSearchUtils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
+//                Map<String, ValueDto> lastValueDtosForIndicies = new HashMap<>();
+
+                List<String> notFoundedValuesForIndexesInElasticSearchDB = INDICIES_FOR_DASHBOARD.stream().filter(s -> !lastValueDtosForIndicies.containsKey(s)).collect(Collectors.toList());
+                for (String s : notFoundedValuesForIndexesInElasticSearchDB) {
+
+                    try (InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpRawDatas")) {
+                        List<PeriodicTimeseries> lastValuesForIndex = influxDBUtils.getLastValuesForIndex(s.replace(ES_INDEX_PREFIX, "")
+                                .replace("ü", "ue")
+                                .replace("ä", "ae")
+                                .replace("ö", "oe"));
+                        if (lastValuesForIndex.size() == 1) {
+                            if (lastValuesForIndex.get(0).getValues().size() == 1) {
+                                PeriodicTimeseriesValue periodicTimeseriesValue = lastValuesForIndex.get(0).getValues().get(0);
+                                lastValueDtosForIndicies.put(s, new ValueDto("" + periodicTimeseriesValue.getValue(), periodicTimeseriesValue.getTime().toEpochMilli()));
+                            }
+                        }
+                    }
+                }
+
                 Map<String, ValueDto> humanReadableNameToValues = new LinkedHashMap<>();
                 for (String s : lastValueDtosForIndicies.keySet()) {
                     humanReadableNameToValues.put(DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME.getOrDefault((ES_INDEX_PREFIX + s).toLowerCase(), s), lastValueDtosForIndicies.get(s));
@@ -69,9 +89,9 @@ public class ServerStarter {
                         // Werte aus Influx lesen
                         List<PeriodicTimeseries> timeSeries = influxDBUtils.getTimeSeries(
                                 s.replace(ES_INDEX_PREFIX, "")
-                                .replace("ü", "ue")
-                                .replace("ä", "ae")
-                                .replace("ö", "oe"), from, to);
+                                        .replace("ü", "ue")
+                                        .replace("ä", "ae")
+                                        .replace("ö", "oe"), from, to);
                         if (timeSeries.size() == 1) {
                             List<ValueDto> values = new ArrayList<>();
                             PeriodicTimeseries periodicTimeseries = timeSeries.get(0);

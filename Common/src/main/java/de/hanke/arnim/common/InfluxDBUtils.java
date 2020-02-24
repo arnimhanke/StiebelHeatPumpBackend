@@ -91,6 +91,52 @@ public class InfluxDBUtils implements AutoCloseable {
         }
     }
 
+    public List<PeriodicTimeseries> getLastValuesForIndex(String tsId) {
+        List<PeriodicTimeseries> result = new ArrayList<>();
+        QueryResult queryResult;
+
+        // Auslesen der Zeitreihe mit dem Zeitinterval in ms (InfluxDB will irgendwie nicht das normale ISO-Format für Datum UND Uhrzeit annehmen)
+        String query = "Select * from " + tsId + " order by time desc LIMIT 1";
+        queryResult = this.influxDB.query(new Query(query, this.dbName));
+
+        for (QueryResult.Result queryResult2 : queryResult.getResults()) {
+
+            // Einzelne Zeitreihen
+            if (queryResult2.getSeries() == null) continue;
+            for (QueryResult.Series series : queryResult2.getSeries()) {
+                if (series == null) {
+                    continue;
+                }
+                List<String> columns = series.getColumns();
+                ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
+                PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, values);
+
+                // Werte <=> namen
+                for (List<Object> value : series.getValues()) {
+                    PeriodicTimeseriesValue periodicTimeseriesValue = new PeriodicTimeseriesValue();
+
+                    // Die Reihenfolge der Spaltennamen und Werte in den Listen ist die gleiche, daher das indirekte Mapping
+                    for (int i = 0; i < columns.size(); i++) {
+                        Object valueForColumn = value.get(i);
+                        try {
+                            // Leerzeichen durch Unterstrich ersetzen
+                            if (!(valueForColumn instanceof String)) {
+                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
+                            } else {
+                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn));
+                            }
+                        } catch (IllegalAccessException | NoSuchFieldException e) {
+//                            e.printStackTrace();
+                        }
+                    }
+                    values.add(periodicTimeseriesValue);
+                }
+                result.add(periodicTimeseries);
+            }
+        }
+        return result;
+    }
+
     public List<PeriodicTimeseries> getTimeSeries(String tsId, Instant from, Instant to) {
         List<PeriodicTimeseries> result = new ArrayList<>();
         QueryResult queryResult;
