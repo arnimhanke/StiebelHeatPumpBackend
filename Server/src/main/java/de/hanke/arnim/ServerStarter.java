@@ -40,8 +40,8 @@ public class ServerStarter {
             System.out.println("Dashboard");
             response.header("Access-Control-Allow-Origin", "*");
             try {
+                // get last values from elastic
                 Map<String, ValueDto> lastValueDtosForIndicies = elasticSearchUtils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
-//                Map<String, ValueDto> lastValueDtosForIndicies = new HashMap<>();
 
                 List<String> notFoundedValuesForIndexesInElasticSearchDB = INDICIES_FOR_DASHBOARD.stream().filter(s -> !lastValueDtosForIndicies.containsKey(s)).collect(Collectors.toList());
                 for (String s : notFoundedValuesForIndexesInElasticSearchDB) {
@@ -54,7 +54,7 @@ public class ServerStarter {
                         if (lastValuesForIndex.size() == 1) {
                             if (lastValuesForIndex.get(0).getValues().size() == 1) {
                                 PeriodicTimeseriesValue periodicTimeseriesValue = lastValuesForIndex.get(0).getValues().get(0);
-                                lastValueDtosForIndicies.put(s, new ValueDto("" + periodicTimeseriesValue.getValue(), periodicTimeseriesValue.getTime().toEpochMilli()));
+                                lastValueDtosForIndicies.put(s, new ValueDto("" + periodicTimeseriesValue.getValue(), Instant.parse(periodicTimeseriesValue.getTime()).toEpochMilli()));
                             }
                         }
                     }
@@ -96,7 +96,7 @@ public class ServerStarter {
                             List<ValueDto> values = new ArrayList<>();
                             PeriodicTimeseries periodicTimeseries = timeSeries.get(0);
                             for (PeriodicTimeseriesValue value : periodicTimeseries.getValues()) {
-                                values.add(new ValueDto("" + value.getValue(), value.getTime().toEpochMilli()));
+                                values.add(new ValueDto("" + value.getValue(), Instant.parse(value.getTime()).toEpochMilli()));
                             }
                             valueDtosForIndiciesInInterval.put(ES_INDEX_PREFIX + periodicTimeseries.getTsId(), values);
                         }
@@ -169,7 +169,7 @@ public class ServerStarter {
             List<PeriodicTimeseriesValue> temp = new ArrayList<>();
 //            System.out.println("Fuer den Index " + stringListEntry.getKey() + " sind " + stringListEntry.getValue().size() + " Werte gefunden worden");
             for (ValueDto valueDto : stringListEntry.getValue()) {
-                temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
+                temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()).toString(), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
             }
 
             if (stringListEntry.getValue().size() == 0) {
@@ -193,7 +193,12 @@ public class ServerStarter {
                     // Kontrolle ob das kopieren erfolgreich war
 
 
-                    long count = temp.stream().filter(periodicTimeseriesValue -> periodicTimeseriesValue.getTime().isBefore(end) && (periodicTimeseriesValue.getTime().isAfter(start) || periodicTimeseriesValue.getTime().compareTo(start) == 0)).count();
+                    long count = temp.stream().filter(periodicTimeseriesValue -> {
+                        Instant parsedTime = Instant.parse(periodicTimeseriesValue.getTime());
+                        return parsedTime.isBefore(end)
+                                && (parsedTime.isAfter(start)
+                                    || parsedTime.compareTo(start) == 0);
+                    }).count();
 
 
                     // Sind ueberhaupt Werte in dem relevanten Zeitraum vorhanden?

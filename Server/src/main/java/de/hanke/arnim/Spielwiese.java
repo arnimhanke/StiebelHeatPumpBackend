@@ -62,7 +62,7 @@ public class Spielwiese {
                 ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
                 List<ValueDto> valuesFromElastic = dataFromIndexInInterval.get(tsName);
                 for (ValueDto valueDto : valuesFromElastic) {
-                    values.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
+                    values.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()).toString(), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
                 }
                 PeriodicTimeseries tsDto = new PeriodicTimeseries(tsName.replace(Constant.ES_INDEX_PREFIX, "")
                         .replace("ü", "ue")

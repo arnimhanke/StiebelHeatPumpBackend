@@ -24,7 +24,7 @@ public class MigrateElasticValuesToInfluxDB {
             allIndexes.add(allIndex.toLowerCase());
         }
 
-        for (String index : allIndexes) {
+        for (String index : allIndexes.subList(0,1)) {
             InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpCorrectedData");
             InfluxDBUtils influxDBUtilsRaw = new InfluxDBUtils("StiebelEltronHeatPumpRawDatas");
 
@@ -35,6 +35,7 @@ public class MigrateElasticValuesToInfluxDB {
                     .replace("ä", "ae")
                     .replace("ö", "oe"), start, end);
 
+            if(true) return;
             if (timeSeries.size() == 1) {
 
                 Map<Long, PeriodicTimeseriesValue> map = new HashMap<>();

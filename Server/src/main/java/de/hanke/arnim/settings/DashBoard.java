@@ -78,4 +78,10 @@ public class DashBoard {
         // INDICIES_FOR_DASHBOARD.add(ES_INDEX_PREFIX + ES_TYPE_DS_REVISIONSNUMMER.toLowerCase());
         // INDICIES_FOR_DASHBOARD.add(ES_INDEX_PREFIX + ES_TYPE_DS_OK.toLowerCase());
     }
+
+    public static void main(String[] args) {
+        for (String s : INDICIES_FOR_DASHBOARD) {
+            System.out.print("\"" + s.replace(ES_INDEX_PREFIX, "") + "\",");
+        }
+    }
 }

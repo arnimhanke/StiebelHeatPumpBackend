@@ -14,6 +14,8 @@ import org.influxdb.impl.InfluxDBResultMapper;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,7 +51,7 @@ public class InfluxDBUtils implements AutoCloseable {
         Instant end = Instant.parse("2018-01-01T23:00:00.00Z");
         while (current.isBefore(end)) {
             PeriodicTimeseriesValue value = new PeriodicTimeseriesValue();
-            value.setTime(current);
+            value.setTime(current.toString());
             value.setValue(20);
             values.add(value);
 
@@ -74,7 +76,7 @@ public class InfluxDBUtils implements AutoCloseable {
 
             tsDto.getValues().forEach(val -> {
                 Point point = Point.measurement(tsDto.getTsId())
-                        .time(val.getTime().toEpochMilli(), TimeUnit.MILLISECONDS)
+                        .time(Instant.parse(val.getTime()).toEpochMilli(), TimeUnit.MILLISECONDS)
                         .addField("value", val.getValue())
                         .build();
                 //influxDB.write(point);
@@ -157,8 +159,8 @@ public class InfluxDBUtils implements AutoCloseable {
                     continue;
                 }
                 List<String> columns = series.getColumns();
-                ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
-                PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, values);
+                List<PeriodicTimeseriesValue> valuesNotSorted = new ArrayList<>();
+
 
                 // Werte <=> namen
                 for (List<Object> value : series.getValues()) {
@@ -172,14 +174,57 @@ public class InfluxDBUtils implements AutoCloseable {
                             if (!(valueForColumn instanceof String)) {
                                 periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
                             } else {
-                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn));
+                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn).toString());
                             }
                         } catch (IllegalAccessException | NoSuchFieldException e) {
 //                            e.printStackTrace();
                         }
                     }
-                    values.add(periodicTimeseriesValue);
+                    valuesNotSorted.add(periodicTimeseriesValue);
                 }
+
+                // sort values
+                List<PeriodicTimeseriesValue> valuesSorted = new LinkedList<>();
+                valuesNotSorted.stream().sorted(Comparator.comparing(o -> Instant.parse(o.getTime()))).forEach(valuesSorted::add);
+
+                // get missing value if the timestamp pof the first is not = start
+                System.out.println("check if query for missing value is needed?");
+                if (Instant.parse(valuesSorted.get(0).getTime()).isAfter(from)) {
+                    System.out.println("query for missing value is needed!");
+                    String queryStringMissingValue = "Select * from " + tsId + " where time <= " + from.toEpochMilli() * 1000 * 1000 + " order by time desc LIMIT 1";
+
+                    QueryResult queryMissingValue = this.influxDB.query(new Query(queryStringMissingValue, this.dbName));
+                    for (QueryResult.Result queryMissingValueResult : queryMissingValue.getResults()) {
+                        for (QueryResult.Series queryMissingValueResultSeries : queryMissingValueResult.getSeries()) {
+
+                            System.out.println("length of missing values " + queryMissingValueResultSeries.getValues().size());
+                            for (List<Object> value : queryMissingValueResultSeries.getValues()) {
+                                PeriodicTimeseriesValue periodicTimeseriesValue = new PeriodicTimeseriesValue();
+
+                                // Die Reihenfolge der Spaltennamen und Werte in den Listen ist die gleiche, daher das indirekte Mapping
+                                for (int i = 0; i < columns.size(); i++) {
+                                    Object valueForColumn = value.get(i);
+                                    try {
+
+                                        // Leerzeichen durch Unterstrich ersetzen
+                                        if (!(valueForColumn instanceof String)) {
+                                            periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
+                                        } else {
+                                            periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn).toString());
+                                        }
+                                    } catch (IllegalAccessException | NoSuchFieldException e) {
+//                                        e.printStackTrace();
+                                    }
+                                }
+                                valuesSorted.add(periodicTimeseriesValue);
+                                valuesSorted.sort(Comparator.comparing(o -> Instant.parse(o.getTime())));
+                            }
+                        }
+                    }
+                }
+
+
+                PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, valuesSorted);
                 result.add(periodicTimeseries);
             }
         }
