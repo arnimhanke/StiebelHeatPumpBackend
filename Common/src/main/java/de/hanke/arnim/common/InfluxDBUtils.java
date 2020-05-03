@@ -3,6 +3,7 @@ package de.hanke.arnim.common;
 import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
 import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
 import de.hanke.arnim.TimeSeriesToolSet.Raster;
+import de.hanke.arnim.TimeSeriesToolSet.TimeseriesUnit;
 import okhttp3.OkHttpClient;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
@@ -22,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 public class InfluxDBUtils implements AutoCloseable {
 
     private final String DATABASEURL = "http://192.168.178.122:8086";
-    private final String USERNAME = "root";
-    private final String PASSWORD = "root";
+    private final String USERNAME = "heatpump";
+    private final String PASSWORD = "x4ZZIFPqnwMAMN3DpJDt";
     protected InfluxDB influxDB;
     private String dbName;
 
@@ -51,7 +52,7 @@ public class InfluxDBUtils implements AutoCloseable {
         Instant end = Instant.parse("2018-01-01T23:00:00.00Z");
         while (current.isBefore(end)) {
             PeriodicTimeseriesValue value = new PeriodicTimeseriesValue();
-            value.setTime(current.toString());
+            value.setTime(current);
             value.setValue(20);
             values.add(value);
 
@@ -60,7 +61,7 @@ public class InfluxDBUtils implements AutoCloseable {
         System.out.println("Dauer für das Erstellen der Werte " + (System.currentTimeMillis() - startMillis));
 
         startMillis = System.currentTimeMillis();
-        influxDBUtils.insertTimeSeries(new PeriodicTimeseries(TS_ID, Raster.PT15S, values));
+        influxDBUtils.insertTimeSeries(new PeriodicTimeseries(TS_ID, Raster.PT15S, TimeseriesUnit.mW, "MyTestDB", values));
         System.out.println("Dauer für das Schreiben der Werte in die DB " + (System.currentTimeMillis() - startMillis));
 
         influxDBUtils.influxDB.close();
@@ -76,7 +77,7 @@ public class InfluxDBUtils implements AutoCloseable {
 
             tsDto.getValues().forEach(val -> {
                 Point point = Point.measurement(tsDto.getTsId())
-                        .time(Instant.parse(val.getTime()).toEpochMilli(), TimeUnit.MILLISECONDS)
+                        .time(val.getTime().toEpochMilli(), TimeUnit.MILLISECONDS)
                         .addField("value", val.getValue())
                         .build();
                 //influxDB.write(point);
@@ -111,7 +112,7 @@ public class InfluxDBUtils implements AutoCloseable {
                 }
                 List<String> columns = series.getColumns();
                 ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
-                PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, values);
+                PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, TimeseriesUnit.mW, this.dbName, values);
 
                 // Werte <=> namen
                 for (List<Object> value : series.getValues()) {
@@ -174,7 +175,7 @@ public class InfluxDBUtils implements AutoCloseable {
                             if (!(valueForColumn instanceof String)) {
                                 periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
                             } else {
-                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn).toString());
+                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn));
                             }
                         } catch (IllegalAccessException | NoSuchFieldException e) {
 //                            e.printStackTrace();
@@ -185,11 +186,11 @@ public class InfluxDBUtils implements AutoCloseable {
 
                 // sort values
                 List<PeriodicTimeseriesValue> valuesSorted = new LinkedList<>();
-                valuesNotSorted.stream().sorted(Comparator.comparing(o -> Instant.parse(o.getTime()))).forEach(valuesSorted::add);
+                valuesNotSorted.stream().sorted(Comparator.comparing(PeriodicTimeseriesValue::getTime)).forEach(valuesSorted::add);
 
                 // get missing value if the timestamp pof the first is not = start
                 System.out.println("check if query for missing value is needed?");
-                if (Instant.parse(valuesSorted.get(0).getTime()).isAfter(from)) {
+                if (valuesSorted.get(0).getTime().isAfter(from)) {
                     System.out.println("query for missing value is needed!");
                     String queryStringMissingValue = "Select * from " + tsId + " where time <= " + from.toEpochMilli() * 1000 * 1000 + " order by time desc LIMIT 1";
 
@@ -210,21 +211,21 @@ public class InfluxDBUtils implements AutoCloseable {
                                         if (!(valueForColumn instanceof String)) {
                                             periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
                                         } else {
-                                            periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn).toString());
+                                            periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn));
                                         }
                                     } catch (IllegalAccessException | NoSuchFieldException e) {
 //                                        e.printStackTrace();
                                     }
                                 }
                                 valuesSorted.add(periodicTimeseriesValue);
-                                valuesSorted.sort(Comparator.comparing(o -> Instant.parse(o.getTime())));
+                                valuesSorted.sort(Comparator.comparing(PeriodicTimeseriesValue::getTime));
                             }
                         }
                     }
                 }
 
 
-                PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, valuesSorted);
+                PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(series.getName(), Raster.PT15S, TimeseriesUnit.mW, this.dbName, valuesSorted);
                 result.add(periodicTimeseries);
             }
         }

@@ -3,6 +3,7 @@ package de.hanke.arnim;
 import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
 import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
 import de.hanke.arnim.TimeSeriesToolSet.Raster;
+import de.hanke.arnim.TimeSeriesToolSet.TimeseriesUnit;
 import de.hanke.arnim.common.Constant;
 import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.InfluxDBUtils;
@@ -62,12 +63,12 @@ public class Spielwiese {
                 ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
                 List<ValueDto> valuesFromElastic = dataFromIndexInInterval.get(tsName);
                 for (ValueDto valueDto : valuesFromElastic) {
-                    values.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()).toString(), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
+                    values.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
                 }
                 PeriodicTimeseries tsDto = new PeriodicTimeseries(tsName.replace(Constant.ES_INDEX_PREFIX, "")
                         .replace("ü", "ue")
                         .replace("ä", "ae")
-                        .replace("ö", "oe"), Raster.PT15S, values);
+                        .replace("ö", "oe"), Raster.PT15S, TimeseriesUnit.mW, "StiebelEltronHeatPumpRawDatas", values);
                 influxDBUtils.insertTimeSeries(tsDto);
             }
             System.out.println("Finished mit Index " + index + " nach " + (System.currentTimeMillis() - startPerformance) / 1000);
