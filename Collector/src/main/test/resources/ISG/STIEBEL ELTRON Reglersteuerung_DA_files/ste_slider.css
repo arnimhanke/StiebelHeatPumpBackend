@@ -1,0 +1,11 @@
+.ui-slider-horizontal{ position:relative; height:24px; width:900px; background:url('/pics/slider/slider-line-default.jpg') 9px 9px repeat-x transparent; }
+.ui-slider-handle{ position:absolute; height:24px; width:20px; z-index:2; margin-left:-11px; background:url('/pics/slider/slider-pointer-default.png') 5px 2px no-repeat transparent; }
+.ui-slider-range{ position:absolute; height:24px; background:url('/pics/slider/slider-line-value.jpg') 0 10px repeat-x; }
+.ui-slider-range:hover{ cursor:pointer; }
+
+#content .slider { margin:5px 0; background-color:#ECF3E1; -moz-border-radius:5px; }
+#content .slider .SliderBoxBilder { display:none; text-align:center; }
+#content .slider .SliderBoxHeadline { background: url('/pics/slider/_slider-div-background.jpg') 0 -14px; }
+#content .slider .SliderBoxHeadline-active{ background: url('/pics/slider/slider-div-background.jpg') !important; }
+#content .slider .SliderBoxBilder img { margin: 2px 20px; }
+#content .slider .SliderBoxHeadline h2 { text-align:center; padding:5px; color:white; margin:0; }

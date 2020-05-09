@@ -11,6 +11,7 @@
         <module>Server</module>
         <module>Collector</module>
         <module>Common</module>
+        <module>DataCorrector</module>
     </modules>
     <packaging>pom</packaging>
 

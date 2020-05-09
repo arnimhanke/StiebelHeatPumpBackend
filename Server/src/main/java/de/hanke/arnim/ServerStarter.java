@@ -13,6 +13,7 @@ import de.hanke.arnim.common.dtos.MonthViewDataDto;
 import de.hanke.arnim.common.lang.DisplayedNames;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -152,7 +153,7 @@ public class ServerStarter {
 
         ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
 
-        Instant start = Instant.now().minusSeconds(60 * 60 * 24 * 2);
+        Instant start = Instant.now().minus(365, ChronoUnit.DAYS);
         Instant end = Instant.now().plusSeconds(60 * 60 * 24);
         ArrayList<String> allIndexes = new ArrayList<>();
 

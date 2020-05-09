@@ -31,13 +31,16 @@ public class DiagnoseAnlage extends AbstractInfo {
 
     @Override
     public void getInformations(String content, long time) {
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, HEIZKREIS_1_PUMPE, time, ES_TYPE_DA_HEIZKREIS_1_PUMPE);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, HEIZEN, time, ES_TYPE_DA_HEIZEN);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, BETRIEBSSTATUS_TABLE_KEY, VERDICHTER, time, ES_TYPE_DA_VERDICHTER);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, HEIZKREISPUMPE, time, ES_TYPE_DA_HEIZKREISPUMPE);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, QUELLENPUMPE, time, ES_TYPE_DA_QUELLENPUMPE);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, PUFFERLADEPUMPE, time, ES_TYPE_DA_PUFFERLADEPUMPE);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, STATUS_TABLE_KEY, VERDICHTERSCHUETZ, time, ES_TYPE_DA_VERDICHTERSCHUETZ);
-        elasticSearchUtils.putValueForKeyInElasticSearch(content, RESTSTILLSTAND_TABLE_KEY, RESTSTILLSTAND, time, ES_TYPE_DA_RESTSTILLSTAND);
+
+
+
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, BETRIEBSSTATUS_TABLE_KEY, HEIZKREIS_1_PUMPE, ES_TYPE_DA_HEIZKREIS_1_PUMPE), time, ES_TYPE_DA_HEIZKREIS_1_PUMPE);
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, BETRIEBSSTATUS_TABLE_KEY, HEIZEN, ES_TYPE_DA_HEIZEN), time, ES_TYPE_DA_HEIZEN);
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, BETRIEBSSTATUS_TABLE_KEY, VERDICHTER, ES_TYPE_DA_VERDICHTER), time, ES_TYPE_DA_VERDICHTER);
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, STATUS_TABLE_KEY, HEIZKREISPUMPE, ES_TYPE_DA_HEIZKREISPUMPE), time, ES_TYPE_DA_HEIZKREISPUMPE);
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, STATUS_TABLE_KEY, QUELLENPUMPE, ES_TYPE_DA_QUELLENPUMPE), time, ES_TYPE_DA_QUELLENPUMPE);
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, STATUS_TABLE_KEY, PUFFERLADEPUMPE, ES_TYPE_DA_PUFFERLADEPUMPE), time, ES_TYPE_DA_PUFFERLADEPUMPE);
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, STATUS_TABLE_KEY, VERDICHTERSCHUETZ, ES_TYPE_DA_VERDICHTERSCHUETZ), time, ES_TYPE_DA_VERDICHTERSCHUETZ);
+        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, RESTSTILLSTAND_TABLE_KEY, RESTSTILLSTAND, ES_TYPE_DA_RESTSTILLSTAND), time, ES_TYPE_DA_RESTSTILLSTAND);
     }
 }
