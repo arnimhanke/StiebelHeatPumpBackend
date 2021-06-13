@@ -3,13 +3,21 @@ package de.hanke.arnim.common.spielwiese;
 import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
 import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
 import de.hanke.arnim.TimeSeriesToolSet.Raster;
+import de.hanke.arnim.TimeSeriesToolSet.TimeseriesUnit;
 import de.hanke.arnim.common.Constant;
+import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.InfluxDBUtils;
 import de.hanke.arnim.common.ValueDto;
 import de.hanke.arnim.common.utils.DataCorrection;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static de.hanke.arnim.common.Constant.*;
+import static de.hanke.arnim.common.utils.DataCorrection.parseDataFromValueDtoToBigDecimal;
 
 public class MigrateElasticValuesToInfluxDB {
 
@@ -20,11 +28,42 @@ public class MigrateElasticValuesToInfluxDB {
 
         ArrayList<String> allIndexes = new ArrayList<>();
 
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_HEIZKREISPUMPE.toLowerCase());
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_HEIZKREIS_1_PUMPE.toLowerCase());
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_HEIZEN.toLowerCase());
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_VERDICHTER.toLowerCase());
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_QUELLENPUMPE.toLowerCase());
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_PUFFERLADEPUMPE.toLowerCase());
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_VERDICHTERSCHUETZ.toLowerCase());
+        allIndexes.add(ES_INDEX_PREFIX + ES_TYPE_DA_RESTSTILLSTAND.toLowerCase());
+
+        ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils("192.168.178.78", "localhost", 9200, "http");
+        Map<String, List<ValueDto>> dataFromIndexInInterval = elasticSearchUtils.getDataFromIndexInInterval(allIndexes, start, end);
+
+        for (String s : dataFromIndexInInterval.keySet()) {
+            List<ValueDto> valueDtos = dataFromIndexInInterval.get(s);
+            InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpRawDatasTest");
+            ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
+
+            for (ValueDto valueDto : valueDtos) {
+                values.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valueDto.getDate()), parseDataFromValueDtoToBigDecimal(valueDto.getValue()).doubleValue()));
+            }
+
+            influxDBUtils.insertTimeSeries(new PeriodicTimeseries(s.replace(ES_INDEX_PREFIX, ""), Raster.PT15S, TimeseriesUnit.mW, "StiebelEltronHeatPumpRawDatasTest", values));
+        }
+    }
+
+    private static void correctionOldVersion() throws InterruptedException {
+        Instant start = Instant.parse("2017-12-30T23:00:00.00Z");
+        Instant end = Instant.parse("2020-01-31T23:00:00.00Z");
+
+        ArrayList<String> allIndexes = new ArrayList<>();
+
         for (String allIndex : Constant.ALL_INDEXES) {
             allIndexes.add(allIndex.toLowerCase());
         }
 
-        for (String index : allIndexes.subList(0,1)) {
+        for (String index : allIndexes.subList(0, 1)) {
             InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpCorrectedData");
             InfluxDBUtils influxDBUtilsRaw = new InfluxDBUtils("StiebelEltronHeatPumpRawDatas");
 
@@ -35,7 +74,7 @@ public class MigrateElasticValuesToInfluxDB {
                     .replace("ä", "ae")
                     .replace("ö", "oe"), start, end);
 
-            if(true) return;
+            if (true) return;
             if (timeSeries.size() == 1) {
 
                 Map<Long, PeriodicTimeseriesValue> map = new HashMap<>();
@@ -73,12 +112,12 @@ public class MigrateElasticValuesToInfluxDB {
                         temp.add(new PeriodicTimeseriesValue(Instant.ofEpochMilli(valuesFromElastic.get(i - 1).getDate()),
                                 Double.parseDouble(valuesFromElastic.get(i - 1).getValue())));
                         if (i % 100 == 0) {
-                            PeriodicTimeseries tsDto = new PeriodicTimeseries(ts, Raster.PT15S, new ArrayList<>(temp));
+                            PeriodicTimeseries tsDto = new PeriodicTimeseries(ts, Raster.PT15S, TimeseriesUnit.mW, "StiebelEltronHeatPumpCorrectedData", new ArrayList<>(temp));
                             influxDBUtils.insertTimeSeries(tsDto);
                             temp = new ArrayList<>();
                         }
                     }
-                    PeriodicTimeseries tsDto = new PeriodicTimeseries(ts, Raster.PT15S, temp);
+                    PeriodicTimeseries tsDto = new PeriodicTimeseries(ts, Raster.PT15S, TimeseriesUnit.mW, "StiebelEltronHeatPumpCorrectedData", temp);
                     influxDBUtils.insertTimeSeries(tsDto);
                     List<PeriodicTimeseries> timeSeries1 = influxDBUtils.getTimeSeries(tsName.replace("heizungssuite_", ""),
                             Instant.ofEpochMilli(valuesFromElastic.get(0).getDate()),

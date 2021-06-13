@@ -20,7 +20,7 @@ public class FilterElasticsearchSearchQuery {
     public static ObjectMapper mapper;
     public ElasticSearchUtils elasticSearchUtils;
     public FilterElasticsearchSearchQuery() {
-        this.elasticSearchUtils = new ElasticSearchUtils();
+        this.elasticSearchUtils = new ElasticSearchUtils("192.168.178.78", "localhost", 9200, "http");
         client = new RestHighLevelClient(RestClient.builder(new HttpHost(elasticSearchUtils.ADDRESS_ELASTICSEARCH, 9200, "http")));
         mapper = new ObjectMapper();
     }

@@ -22,14 +22,25 @@ import java.util.concurrent.TimeUnit;
 
 public class InfluxDBUtils implements AutoCloseable {
 
-    private final String DATABASEURL = "http://192.168.178.122:8086";
-    private final String USERNAME = "heatpump";
-    private final String PASSWORD = "x4ZZIFPqnwMAMN3DpJDt";
+    private final String DATABASEURL;
+    private final String USERNAME;
+    private final String PASSWORD;
     protected InfluxDB influxDB;
-    private String dbName;
+    private final String dbName;
 
     public InfluxDBUtils(String dataBaseName) {
+//        this("http://192.168.180.122:8086", "heatpump", "x4ZZIFPqnwMAMN3DpJDt", dataBaseName);
+        this("", "", "", "");
+    }
+
+    public InfluxDBUtils(String DATABASEURL, String USERNAME, String PASSWORD, String dbName) {
+        this.DATABASEURL = DATABASEURL;
+        this.USERNAME = USERNAME;
+        this.PASSWORD = PASSWORD;
+        this.dbName = dbName;
+
         OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder()
+                .retryOnConnectionFailure(true)
                 .connectTimeout(40, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS);
@@ -37,7 +48,6 @@ public class InfluxDBUtils implements AutoCloseable {
         this.influxDB.setLogLevel(InfluxDB.LogLevel.NONE);
         influxDB.setRetentionPolicy("autogen");
         //influxDB.enableBatch(1000, 100, TimeUnit.MILLISECONDS);
-        this.dbName = dataBaseName;
     }
 
     public static void main(String[] args) {
@@ -196,29 +206,31 @@ public class InfluxDBUtils implements AutoCloseable {
 
                     QueryResult queryMissingValue = this.influxDB.query(new Query(queryStringMissingValue, this.dbName));
                     for (QueryResult.Result queryMissingValueResult : queryMissingValue.getResults()) {
-                        for (QueryResult.Series queryMissingValueResultSeries : queryMissingValueResult.getSeries()) {
+                        if(queryMissingValueResult != null && queryMissingValueResult.getSeries() != null) {
+                            for (QueryResult.Series queryMissingValueResultSeries : queryMissingValueResult.getSeries()) {
 
-                            System.out.println("length of missing values " + queryMissingValueResultSeries.getValues().size());
-                            for (List<Object> value : queryMissingValueResultSeries.getValues()) {
-                                PeriodicTimeseriesValue periodicTimeseriesValue = new PeriodicTimeseriesValue();
+                                System.out.println("length of missing values " + queryMissingValueResultSeries.getValues().size());
+                                for (List<Object> value : queryMissingValueResultSeries.getValues()) {
+                                    PeriodicTimeseriesValue periodicTimeseriesValue = new PeriodicTimeseriesValue();
 
-                                // Die Reihenfolge der Spaltennamen und Werte in den Listen ist die gleiche, daher das indirekte Mapping
-                                for (int i = 0; i < columns.size(); i++) {
-                                    Object valueForColumn = value.get(i);
-                                    try {
+                                    // Die Reihenfolge der Spaltennamen und Werte in den Listen ist die gleiche, daher das indirekte Mapping
+                                    for (int i = 0; i < columns.size(); i++) {
+                                        Object valueForColumn = value.get(i);
+                                        try {
 
-                                        // Leerzeichen durch Unterstrich ersetzen
-                                        if (!(valueForColumn instanceof String)) {
-                                            periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
-                                        } else {
-                                            periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn));
+                                            // Leerzeichen durch Unterstrich ersetzen
+                                            if (!(valueForColumn instanceof String)) {
+                                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, valueForColumn);
+                                            } else {
+                                                periodicTimeseriesValue.getClass().getDeclaredField(columns.get(i).replace(" ", "_")).set(periodicTimeseriesValue, Instant.parse((String) valueForColumn));
+                                            }
+                                        } catch (IllegalAccessException | NoSuchFieldException e) {
+    //                                        e.printStackTrace();
                                         }
-                                    } catch (IllegalAccessException | NoSuchFieldException e) {
-//                                        e.printStackTrace();
                                     }
+                                    valuesSorted.add(periodicTimeseriesValue);
+                                    valuesSorted.sort(Comparator.comparing(PeriodicTimeseriesValue::getTime));
                                 }
-                                valuesSorted.add(periodicTimeseriesValue);
-                                valuesSorted.sort(Comparator.comparing(PeriodicTimeseriesValue::getTime));
                             }
                         }
                     }

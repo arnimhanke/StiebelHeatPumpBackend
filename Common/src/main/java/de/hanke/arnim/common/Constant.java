@@ -44,6 +44,8 @@ public class Constant {
     public static final String ES_TYPE_IA_QUELLENTEMPERATUR = "IA_QUELLENTEMPERATUR";
     public static final String ES_TYPE_IA_QUELLENDRUCK = "IA_QUELLENDRUCK";
     public static final String ES_TYPE_IA_ISTTEMPERATUR_GEBLAESE = "IA_ISTTEMPERATUR_GEBLÄSE";
+    public static final String ES_TYPE_IA_ISTTEMPERATUR_FLAECHE = "IA_ISTTEMPERATUR_FLÄCHE";
+    public static final String ES_TYPE_IA_SOLLTEMPERATUR_FLAECHE = "IA_SOLLTEMPERATUR_FLÄCHE";
 
 
     // Diagnose Anlage
@@ -95,6 +97,8 @@ public class Constant {
             ES_TYPE_IA_QUELLENTEMPERATUR,
             ES_TYPE_IA_QUELLENDRUCK,
             ES_TYPE_IA_ISTTEMPERATUR_GEBLAESE,
+            ES_TYPE_IA_ISTTEMPERATUR_FLAECHE,
+            ES_TYPE_IA_SOLLTEMPERATUR_FLAECHE,
             ES_TYPE_DA_HEIZKREIS_1_PUMPE,
             ES_TYPE_DA_HEIZEN,
             ES_TYPE_DA_VERDICHTER,

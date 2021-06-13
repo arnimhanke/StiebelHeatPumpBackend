@@ -1,5 +1,9 @@
 package de.hanke.arnim.heizung;
 
+import de.hanke.arnim.Properties;
+
+import java.time.Instant;
+
 import static de.hanke.arnim.common.Constant.*;
 
 /**
@@ -27,17 +31,17 @@ public class DiagnoseSystem extends AbstractInfo {
 
     public DiagnoseSystem() {
         super();
-        setUrl(elasticSearchUtils.ADDRESS_ISG + "/?s=2,1");
+        setUrl(Properties.ADDRESS_ISG + "/?s=2,1");
     }
 
     @Override
-    public void getInformations(String content, long time) {
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, REGLER_TABLE_KEY, WPM_3i, ES_TYPE_DS_WPM_3i), time, ES_TYPE_DS_WPM_3i);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, REGLER_TABLE_KEY, SOFTWARE, ES_TYPE_DS_SOFTWARE), time, ES_TYPE_DS_SOFTWARE);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, ISG_TABLE_KEY, SG_READY, ES_TYPE_DS_SG_READY), time, ES_TYPE_DS_SG_READY);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, ISG_TABLE_KEY, HAUPTVERSIONSNUMMER, ES_TYPE_DS_HAUPTVERSIONSNUMMER), time, ES_TYPE_DS_HAUPTVERSIONSNUMMER);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, ISG_TABLE_KEY, NEBENVERSIONSNUMMER, ES_TYPE_DS_NEBENVERSIONSNUMMER), time, ES_TYPE_DS_NEBENVERSIONSNUMMER);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, ISG_TABLE_KEY, REVISIONSNUMMER, ES_TYPE_DS_REVISIONSNUMMER), time, ES_TYPE_DS_REVISIONSNUMMER);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, CAN_STATUS_TABLE_KEY, OK, ES_TYPE_DS_OK), time, ES_TYPE_DS_OK);
+    public void getInformations(String content, Instant time) {
+        addValueToDB(super.getInformation(content, REGLER_TABLE_KEY, WPM_3i, ES_TYPE_DS_WPM_3i), time, ES_TYPE_DS_WPM_3i);
+        addValueToDB(super.getInformation(content, REGLER_TABLE_KEY, SOFTWARE, ES_TYPE_DS_SOFTWARE), time, ES_TYPE_DS_SOFTWARE);
+        addValueToDB(super.getInformation(content, ISG_TABLE_KEY, SG_READY, ES_TYPE_DS_SG_READY), time, ES_TYPE_DS_SG_READY);
+        addValueToDB(super.getInformation(content, ISG_TABLE_KEY, HAUPTVERSIONSNUMMER, ES_TYPE_DS_HAUPTVERSIONSNUMMER), time, ES_TYPE_DS_HAUPTVERSIONSNUMMER);
+        addValueToDB(super.getInformation(content, ISG_TABLE_KEY, NEBENVERSIONSNUMMER, ES_TYPE_DS_NEBENVERSIONSNUMMER), time, ES_TYPE_DS_NEBENVERSIONSNUMMER);
+        addValueToDB(super.getInformation(content, ISG_TABLE_KEY, REVISIONSNUMMER, ES_TYPE_DS_REVISIONSNUMMER), time, ES_TYPE_DS_REVISIONSNUMMER);
+        addValueToDB(super.getInformation(content, CAN_STATUS_TABLE_KEY, OK, ES_TYPE_DS_OK), time, ES_TYPE_DS_OK);
     }
 }

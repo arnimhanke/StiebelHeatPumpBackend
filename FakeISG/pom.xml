@@ -4,22 +4,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>HeizungsSuite</artifactId>
-        <groupId>de.hank.arnim</groupId>
+        <groupId>de.hanke.arnim</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>FakeISG</artifactId>
     <properties>
         <slf4j.version>1.7.30</slf4j.version>
     </properties>
 
-    <artifactId>Server</artifactId>
     <dependencies>
-        <dependency>
-            <groupId>de.hanke.arnim</groupId>
-            <artifactId>Common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -52,7 +48,6 @@
             <artifactId>javassist</artifactId>
             <version>3.21.0-GA</version>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -64,7 +59,6 @@
             <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -91,4 +85,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

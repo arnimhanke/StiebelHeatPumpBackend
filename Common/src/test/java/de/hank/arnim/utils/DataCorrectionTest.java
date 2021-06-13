@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.time.Instant;
@@ -25,7 +26,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
+
 public class DataCorrectionTest {
+
+    @Test
+    public void test_imgHtmlTag() {
+        assertEquals(BigDecimal.ONE, DataCorrection.parseDataFromValueDtoToBigDecimal("<img height=\"15\" src=\"./STIEBEL ELTRON Reglersteuerung_DS_files/ste-symbol_an-97b765.png"));
+    }
+    @Test
+    public void test_negNumber() {
+        assertEquals(BigDecimal.valueOf(-24.7), DataCorrection.parseDataFromValueDtoToBigDecimal("-24,7 °C"));
+    }
 
     @Test
     public void test_fixUpSeries() throws IOException, URISyntaxException {

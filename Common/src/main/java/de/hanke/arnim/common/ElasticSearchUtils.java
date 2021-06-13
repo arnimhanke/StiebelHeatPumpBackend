@@ -33,23 +33,16 @@ public class ElasticSearchUtils {
     public final ObjectMapper mapper = new ObjectMapper();
     private final Map<String, ValueDto> lastValues = new HashMap<>();
     private final Cache cache = new Cache();
-    public String ADDRESS_ELASTICSEARCH;
-    public int PORT_ELASTICSEARCH;
-    public String PROTOCOL_ELASTICSEARCH;
-    public String ADDRESS_ISG;
-    Properties properties;
+    public final String ADDRESS_ELASTICSEARCH;
+    public final String ADRESS_ELASTICSEARCH_LOKAL;
+    public final int PORT_ELASTICSEARCH;
+    public final String PROTOCOL_ELASTICSEARCH;
 
-    public ElasticSearchUtils() {
-        properties = new Properties();
-        try {
-            properties.load(ElasticSearchUtils.class.getResourceAsStream("elasticsearch.properties"));
-            ADDRESS_ELASTICSEARCH = properties.getProperty("ADRESS_ELASTICSEARCH");
-            PORT_ELASTICSEARCH = Integer.parseInt(properties.getProperty("PORT_ELASTICSEARCH"));
-            ADDRESS_ISG = properties.getProperty("ADDRESS_ISG");
-        } catch (IOException e) {
-            System.out.println("Fehler beim Laden der Konfiguration");
-            e.printStackTrace();
-        }
+    public ElasticSearchUtils(String adressElasticSearch, String adressElasticSearchLokal, int portElasticsearch, String protocolElasticsearch) {
+        ADDRESS_ELASTICSEARCH = adressElasticSearch;
+        ADRESS_ELASTICSEARCH_LOKAL = adressElasticSearchLokal;
+        PORT_ELASTICSEARCH = portElasticsearch;
+        PROTOCOL_ELASTICSEARCH = protocolElasticsearch;
     }
 
     public RestHighLevelClient generateESRestClient() {
@@ -57,7 +50,7 @@ public class ElasticSearchUtils {
     }
 
     public RestHighLevelClient generateLocalESRestClient() {
-        return new RestHighLevelClient(RestClient.builder(new HttpHost(properties.getProperty("ADRESS_ELASTICSEARCH_LOKAL"), PORT_ELASTICSEARCH, PROTOCOL_ELASTICSEARCH)));
+        return new RestHighLevelClient(RestClient.builder(new HttpHost(ADRESS_ELASTICSEARCH_LOKAL, PORT_ELASTICSEARCH, PROTOCOL_ELASTICSEARCH)));
     }
 
     public Map<String, List<ValueDto>> getDataFromIndexInInterval(List<String> indicies, Instant from, Instant to) {
@@ -222,6 +215,7 @@ public class ElasticSearchUtils {
                 return false;
             }
         } catch (IOException e) {
+            System.out.println("Fehler beim Zugriff auf Elasticsearch");
             e.printStackTrace();
             return false;
         }

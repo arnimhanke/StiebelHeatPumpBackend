@@ -28,7 +28,7 @@ import java.util.*;
  */
 public class Copy_Helper {
 
-    public static ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
+    public static ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils("192.168.178.78", "localhost", 9200, "http");
     public static RestHighLevelClient remoteClient = elasticSearchUtils.generateESRestClient();
     public static RestHighLevelClient localClient = elasticSearchUtils.generateLocalESRestClient();
     public static ObjectMapper mapper;
@@ -84,6 +84,9 @@ public class Copy_Helper {
         indicies.add("heizungssuite_ia_aussentemperatur");
         indicies.add("heizungssuite_ia_solltemperatur_hk_1");
         indicies.add("heizungssuite_ia_heizungsdruck");
+
+        indicies.add("heizungssuite_ia_solltemperatur_flaeche");
+        indicies.add("heizungssuite_ia_isttemperatur_flaeche");
     }
 
     /**
@@ -91,7 +94,7 @@ public class Copy_Helper {
      */
     public static void main(String[] args) throws IOException {
         System.out.println(elasticSearchUtils.ADDRESS_ELASTICSEARCH);
-        GregorianCalendar from = new GregorianCalendar(2020, Calendar.JANUARY, 1, 0, 0);
+        GregorianCalendar from = new GregorianCalendar(2022, Calendar.JANUARY, 1, 0, 0);
         GregorianCalendar to = new GregorianCalendar(2015, Calendar.JANUARY, 1, 0, 0);
 
         GregorianCalendar current = from;

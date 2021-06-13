@@ -11,6 +11,10 @@
 
     <artifactId>Collector</artifactId>
 
+    <properties>
+        <slf4j.version>1.7.30</slf4j.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -53,6 +57,17 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.5.2</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
 

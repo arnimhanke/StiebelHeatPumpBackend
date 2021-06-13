@@ -1,5 +1,10 @@
 package de.hanke.arnim.heizung;
 
+import de.hanke.arnim.Properties;
+import de.hanke.arnim.common.InfluxDBUtils;
+
+import java.time.Instant;
+
 import static de.hanke.arnim.common.Constant.*;
 
 /**
@@ -29,21 +34,20 @@ public class InfoWaermepumpe extends AbstractInfo {
 
     public InfoWaermepumpe() {
         super();
-        setUrl(elasticSearchUtils.ADDRESS_ISG + "/?s=1,1");
+        setUrl(Properties.ADDRESS_ISG + "/?s=1,1");
     }
 
-    public void getInformations(String content, long time) {
-
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_TAG, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_TAG), time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_TAG);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_SUMME, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_SUMME), time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_SUMME);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_NHZ_HEIZEN_SUMME, ES_TYPE_IW_WAERMEMENGE_NHZ_HEIZEN_SUMME), time, ES_TYPE_IW_WAERMEMENGE_NHZ_HEIZEN_SUMME);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_TAG, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG), time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME), time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, LAUFZEIT_TABLE_KEY, VD_HEIZEN, ES_TYPE_IW_VD_HEIZEN), time, ES_TYPE_IW_VD_HEIZEN);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, LAUFZEIT_TABLE_KEY, VD_KUEHLEN, ES_TYPE_IW_VD_KUEHLEN), time, ES_TYPE_IW_VD_KUEHLEN);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, LAUFZEIT_TABLE_KEY, NHZ_1, ES_TYPE_IW_NHZ_1), time, ES_TYPE_IW_NHZ_1);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, LAUFZEIT_TABLE_KEY, NHZ_2, ES_TYPE_IW_NHZ_2), time, ES_TYPE_IW_NHZ_2);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, LAUFZEIT_TABLE_KEY, NHZ_1_DURCH_2, ES_TYPE_IW_NHZ_1_DURCH_2), time, ES_TYPE_IW_NHZ_1_DURCH_2);
-        elasticSearchUtils.putValueIntoElasticsearch(super.getInformation(content, STARTS_TABLE_KEY, VERDICHTER, ES_TYPE_IW_VERDICHTER), time, ES_TYPE_IW_VERDICHTER);
+    public void getInformations(String content, Instant time) {
+        addValueToDB(super.getInformation(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_TAG, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_TAG), time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_TAG);
+        addValueToDB(super.getInformation(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_VD_HEIZEN_SUMME, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_SUMME), time, ES_TYPE_IW_WAERMEMENGE_VD_HEIZEN_SUMME);
+        addValueToDB(super.getInformation(content, WAERMEMENGE_TABLE_KEY, WAERMEMENGE_NHZ_HEIZEN_SUMME, ES_TYPE_IW_WAERMEMENGE_NHZ_HEIZEN_SUMME), time, ES_TYPE_IW_WAERMEMENGE_NHZ_HEIZEN_SUMME);
+        addValueToDB(super.getInformation(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_TAG, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG), time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_TAG);
+        addValueToDB(super.getInformation(content, LEISTUNGSAUFNAHME_TABLE_KEY, LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME), time, ES_TYPE_IW_LEISTUNGSAUFNAHME_VD_HEIZEN_SUMME);
+        addValueToDB(super.getInformation(content, LAUFZEIT_TABLE_KEY, VD_HEIZEN, ES_TYPE_IW_VD_HEIZEN), time, ES_TYPE_IW_VD_HEIZEN);
+        addValueToDB(super.getInformation(content, LAUFZEIT_TABLE_KEY, VD_KUEHLEN, ES_TYPE_IW_VD_KUEHLEN), time, ES_TYPE_IW_VD_KUEHLEN);
+        addValueToDB(super.getInformation(content, LAUFZEIT_TABLE_KEY, NHZ_1, ES_TYPE_IW_NHZ_1), time, ES_TYPE_IW_NHZ_1);
+        addValueToDB(super.getInformation(content, LAUFZEIT_TABLE_KEY, NHZ_2, ES_TYPE_IW_NHZ_2), time, ES_TYPE_IW_NHZ_2);
+        addValueToDB(super.getInformation(content, LAUFZEIT_TABLE_KEY, NHZ_1_DURCH_2, ES_TYPE_IW_NHZ_1_DURCH_2), time, ES_TYPE_IW_NHZ_1_DURCH_2);
+        addValueToDB(super.getInformation(content, STARTS_TABLE_KEY, VERDICHTER, ES_TYPE_IW_VERDICHTER), time, ES_TYPE_IW_VERDICHTER);
     }
 }

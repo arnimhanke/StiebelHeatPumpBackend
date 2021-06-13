@@ -1,6 +1,17 @@
 package de.hanke.arnim.heizung;
 
-import de.hanke.arnim.common.ElasticSearchUtils;
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
+import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
+import de.hanke.arnim.common.InfluxDBUtils;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static de.hanke.arnim.Properties.*;
+import static de.hanke.arnim.common.utils.DataCorrection.parseDataFromValueDtoToBigDecimal;
 
 /**
  * Created by arnim on 12/24/17.
@@ -8,15 +19,16 @@ import de.hanke.arnim.common.ElasticSearchUtils;
 public abstract class AbstractInfo {
 
     public String url;
-    public ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
+    Map<String, BigDecimal> lastValues = new HashMap<>();
 
-    public AbstractInfo() {}
+    public AbstractInfo() {
+    }
 
     public void setUrl(String url) {
         this.url = url;
     }
 
-    public abstract void getInformations(String content, long time);
+    public abstract void getInformations(String content, Instant time);
 
     public String getInformation(String content, String tabelName, String key, String esType) {
         try {
@@ -36,6 +48,34 @@ public abstract class AbstractInfo {
             return "";
         }
         return "";
+    }
+
+    /**
+     * parses the given information to a numeric value and writes it to database
+     *
+     * @param information
+     * @param time
+     * @param esTypeIwWaermemengeVdHeizenTag
+     */
+    public void addValueToDB(String information, Instant time, String esTypeIwWaermemengeVdHeizenTag) {
+        BigDecimal bigDecimal = parseDataFromValueDtoToBigDecimal(information);
+        String index = esTypeIwWaermemengeVdHeizenTag.toLowerCase().replace("ü", "ue")
+                .replace("ä", "ae")
+                .replace("ö", "oe");
+        if (lastValues.get(index) != null && lastValues.get(index).compareTo(bigDecimal) == 0) {
+            return;
+        }
+        try (InfluxDBUtils influxDBUtils = new InfluxDBUtils(ADDRESS_INFLUXDB, USER_INFLUXDB, PASSWORD_INFLUXDB, DATABASE_RAW_DATA_INFLUXDB)) {
+
+            PeriodicTimeseries tsDto = new PeriodicTimeseries();
+            tsDto.setTsId(index);
+            ArrayList<PeriodicTimeseriesValue> values = new ArrayList<>();
+            values.add(new PeriodicTimeseriesValue(time, bigDecimal.doubleValue()));
+            tsDto.setValues(values);
+            influxDBUtils.insertTimeSeries(tsDto);
+            lastValues.put(index, bigDecimal);
+        }
+        ;
     }
 
 }

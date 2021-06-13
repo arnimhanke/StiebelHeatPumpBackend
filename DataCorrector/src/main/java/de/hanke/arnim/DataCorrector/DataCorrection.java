@@ -7,12 +7,15 @@ import de.hanke.arnim.TimeSeriesToolSetServer.serivce.InfluxDBService;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataCorrection {
 
     public static void main(String[] args) {
 
-        copyDataWrapper();
+//        copyDataWrapper();
+
+        correctDataFromLastDay();
 
 //        Timer timerMoveData = new Timer();
 //        timerMoveData.schedule(new TimerTask() {
@@ -22,20 +25,19 @@ public class DataCorrection {
 //                } catch (Exception e) {
 //                    e.printStackTrace();
 //                }
-//
 //            }
 //        }, 0, 1000 * 60 * 60 * 24); // Jeden Tag einmal
 
     }
 
     private static void correctDataFromLastDay() {
-        String stiebelEltronHeatPumpCorrectedDatasDatabase = "StiebelEltronHeatPumpCorrectedDatasTest";
         String stiebelEltronHeatPumpRawDatasDatabase = "StiebelEltronHeatPumpRawDatasTest";
+        String stiebelEltronHeatPumpCorrectedDatasDatabase = "StiebelEltronHeatPumpCorrectedDatasTest";
 
-        Instant from = Instant.parse("2020-02-01T00:00:00.00Z");
-        Instant to = Instant.parse("2020-03-01T00:00:00.00Z");
+        Instant from = Instant.parse("2020-07-31T00:00:00.00Z");
+        Instant to = Instant.parse("2020-12-11T00:00:00.00Z");
 
-        correctDataForGiveIntervalAndDataBase(stiebelEltronHeatPumpCorrectedDatasDatabase, stiebelEltronHeatPumpRawDatasDatabase, from, to);
+        correctDataForGiveIntervalAndDataBase(stiebelEltronHeatPumpRawDatasDatabase, stiebelEltronHeatPumpCorrectedDatasDatabase, from, to);
 
     }
 
@@ -43,7 +45,7 @@ public class DataCorrection {
         String fromDatabase = "StiebelEltronHeatPumpRawDatas";
         String toDatabase = "StiebelEltronHeatPumpRawDatasTest";
 
-        Instant overallStart = Instant.parse("2015-01-01T00:00:00.00Z");
+        Instant overallStart = Instant.parse("2020-04-30T00:00:00.00Z");
         Instant overallEnd = Instant.parse("2021-01-01T00:00:00.00Z");
 
         for (Instant i = overallStart; i.isBefore(overallEnd); i = i.plus(365, ChronoUnit.DAYS)) {
@@ -52,27 +54,41 @@ public class DataCorrection {
         }
     }
 
-    private static void correctDataForGiveIntervalAndDataBase(String stiebelEltronHeatPumpCorrectedDatasDatabase, String stiebelEltronHeatPumpRawDatasDatabase, Instant from, Instant to) {
+    private static void correctDataForGiveIntervalAndDataBase(String stiebelEltronHeatPumpRawDatasDatabase, String stiebelEltronHeatPumpCorrectedDatasDatabase, Instant fromGesamt, Instant toGesamt) {
+
+        Instant lastFrom;
+        for (lastFrom = fromGesamt; lastFrom.isBefore(toGesamt.minus(15, ChronoUnit.DAYS)); lastFrom = lastFrom.plus(15, ChronoUnit.DAYS)) {
+            Instant fromCalculated = lastFrom.minus(10, ChronoUnit.HOURS);
+            Instant toCalculcated = lastFrom.plus(15, ChronoUnit.DAYS);
+            secondWrapper(stiebelEltronHeatPumpRawDatasDatabase, stiebelEltronHeatPumpCorrectedDatasDatabase, fromCalculated, toCalculcated);
+        }
+        secondWrapper(stiebelEltronHeatPumpRawDatasDatabase, stiebelEltronHeatPumpCorrectedDatasDatabase, lastFrom.minus(10, ChronoUnit.HOURS), toGesamt);
+    }
+
+    private static void secondWrapper(String stiebelEltronHeatPumpRawDatasDatabase, String stiebelEltronHeatPumpCorrectedDatasDatabase, Instant fromCalculated, Instant toCalculcated) {
+        System.out.println(new Interval(fromCalculated, toCalculcated).toString());
         Map<String, PeriodicTimeseriesHead> tsIds = getListOfAllPeriodicTimeseriesHeads(stiebelEltronHeatPumpRawDatasDatabase);
 
         System.out.println("Start loading data");
         long startLoadingData = System.currentTimeMillis();
 
-        Map<String, List<PeriodicTimeseriesValue>> timeseriesForInterval = InfluxDBService.getTimeseriesForInterval(new ArrayList<>(tsIds.keySet()), stiebelEltronHeatPumpRawDatasDatabase, from, to);
+        Map<String, List<PeriodicTimeseriesValue>> timeseriesForInterval = InfluxDBService.getTimeseriesForInterval(new ArrayList<>(tsIds.keySet()), stiebelEltronHeatPumpRawDatasDatabase, fromCalculated, toCalculcated);
 
         System.out.println("Finished loading data " + (System.currentTimeMillis() - startLoadingData));
-
-        ArrayList<InfluxTimeseries> timeseriesToSave = new ArrayList<>();
 
         System.out.println("Start for raster");
         long startForRaster = System.currentTimeMillis();
 
-        timeseriesForInterval.forEach((key, value) -> {
-            PeriodicTimeseriesHead periodicTimeseriesHead = tsIds.get(key);
-            PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(periodicTimeseriesHead, value);
-            PeriodicTimeseries correctedData = periodicTimeseries.forRaster(periodicTimeseriesHead.getRaster(), from, to);
-            timeseriesToSave.add(new InfluxTimeseries(key, stiebelEltronHeatPumpCorrectedDatasDatabase, correctedData.getValues()));
-        });
+        List<InfluxTimeseries> timeseriesToSave = timeseriesForInterval.entrySet().parallelStream().map(entry -> {
+
+            PeriodicTimeseriesHead periodicTimeseriesHead = tsIds.get(entry.getKey());
+
+            PeriodicTimeseries periodicTimeseries = new PeriodicTimeseries(periodicTimeseriesHead, entry.getValue());
+
+            PeriodicTimeseries correctedData = FixUpSeries.fixUpSeries(periodicTimeseries);
+
+            return new InfluxTimeseries(entry.getKey(), stiebelEltronHeatPumpCorrectedDatasDatabase, correctedData.getValues());
+        }).collect(Collectors.toList());
 
         System.out.println("Finished for raster " + (System.currentTimeMillis() - startForRaster));
 

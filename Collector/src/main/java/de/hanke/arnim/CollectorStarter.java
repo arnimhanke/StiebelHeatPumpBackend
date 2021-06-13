@@ -5,6 +5,7 @@ import de.hanke.arnim.heizung.*;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 
@@ -25,6 +26,13 @@ public class CollectorStarter {
     }
 
     private static void startTimer() {
+//        System.out.println(Properties.ADDRESS_ELASTICSEARCH);
+//        System.out.println(Properties.ADDRESS_ELASTICSEARCH_LOCALHOST);
+        System.out.println(Properties.ADDRESS_ISG);
+        System.out.println(Properties.ADDRESS_INFLUXDB);
+        System.out.println(Properties.DATABASE_RAW_DATA_INFLUXDB);
+//        System.out.println(Properties.PORT_ELASTICSEARCH);
+//        System.out.println(Properties.PROTOCOL_ELASTICSEARCH);
         try {
             Timer timerCollection = new Timer();
             timerCollection.schedule(new TimerTask() {
@@ -40,8 +48,7 @@ public class CollectorStarter {
                             timestamp.get(GregorianCalendar.HOUR_OF_DAY),
                             timestamp.get(GregorianCalendar.MINUTE),
                             secondsrounded);
-                    long time = clearedTimestamp.toInstant().toEpochMilli();
-                    getStiebelEltronData(time);
+                    getStiebelEltronData(clearedTimestamp.toInstant());
                 }
             }, 0, 1000 * 15);
 
@@ -50,17 +57,21 @@ public class CollectorStarter {
         }
     }
 
-    private static void getStiebelEltronData(long time) {
+    private static void getStiebelEltronData(Instant time) {
+        System.out.println("Get Stiebel-Eltron Data");
         long start = System.currentTimeMillis();
         informations.stream().parallel().forEach(abstractInfo -> {
             URLConnection connection = null;
             try {
+                System.out.println("Trying to get ISG-Infos from url " + abstractInfo.url);
                 connection = new URL(abstractInfo.url).openConnection();
                 Scanner scanner = new Scanner(connection.getInputStream());
                 scanner.useDelimiter("\\Z");
                 String content = scanner.next();
+                System.out.println("Extract ISG-Infos from url " + abstractInfo.url);
                 abstractInfo.getInformations(content, time);
             } catch (IOException e) {
+                System.err.println("Fehler beim Abfragen der Daten vom ISG");
                 e.printStackTrace();
             }
         });

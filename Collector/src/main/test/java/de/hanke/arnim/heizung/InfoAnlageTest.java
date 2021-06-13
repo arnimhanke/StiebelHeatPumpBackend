@@ -16,12 +16,12 @@ class InfoAnlageTest {
     void getInformations() throws IOException {
         String contentFromHTMLFile = ReadFromHTMLFile.getContentFromHTMLFile("STIEBEL_ELTRON_Reglersteuerung_IA.html");
 
-        Assert.assertEquals("24,7 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, AUSSENTEMPERATUR, ES_TYPE_IA_AUSSENTEMPERATUR));
+        Assert.assertEquals("-24,7 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, AUSSENTEMPERATUR, ES_TYPE_IA_AUSSENTEMPERATUR));
         Assert.assertEquals("20,9 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, ISTTEMPERATUR_HK_1, ES_TYPE_IA_ISTTEMPERATUR_HK_1));
         Assert.assertEquals("17,7 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, SOLLTEMPERATUR_HK_1, ES_TYPE_IA_SOLLTEMPERATUR_HK_1));
         Assert.assertEquals("19,9 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_WP, ES_TYPE_IA_VORLAUFISTTEMPERATUR_WP));
         Assert.assertEquals("20,1 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, VORLAUFISTTEMPERATUR_NHZ, ES_TYPE_IA_VORLAUFISTTEMPERATUR_NHZ));
-        Assert.assertEquals("19,8 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, RÜCKLAUFISTTEMPERATUR, ES_TYPE_IA_RUECKLAUFISTTEMPERATUR));
+        Assert.assertEquals("19,8 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, RUECKLAUFISTTEMPERATUR, ES_TYPE_IA_RUECKLAUFISTTEMPERATUR));
         Assert.assertEquals("20,9 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, PUFFERISTTEMPERATUR, ES_TYPE_IA_PUFFERISTTEMPERATUR));
         Assert.assertEquals("17,8 °C", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, PUFFERSOLLTEMPERATUR, ES_TYPE_IA_PUFFERSOLLTEMPERATUR));
         Assert.assertEquals("1,83 bar", infoAnlage.getInformation(contentFromHTMLFile, HEIZUNG_TABLE_KEY, HEIZUNGSDRUCK, ES_TYPE_IA_HEIZUNGSDRUCK));

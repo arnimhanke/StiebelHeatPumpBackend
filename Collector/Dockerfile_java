@@ -1,0 +1,5 @@
+FROM arm32v7/openjdk
+
+RUN apt-get update
+RUN java --version
+RUN uname -a

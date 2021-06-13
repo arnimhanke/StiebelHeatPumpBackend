@@ -37,19 +37,21 @@ public class ServerStarter {
     }
 
     public static void startServer() {
-        ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
+        ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils("192.168.178.78", "localhost", 9200, "http");
         get("/dashboard", (request, response) -> {
             System.out.println("Dashboard");
             response.header("Access-Control-Allow-Origin", "*");
             try {
                 // get last values from elastic
-                Map<String, ValueDto> lastValueDtosForIndicies = elasticSearchUtils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
+                Map<String, ValueDto> lastValueDtosForIndicies = new LinkedHashMap<>();
+//                lastValueDtosForIndicies = elasticSearchUtils.getLastValueDtosForIndicies(INDICIES_FOR_DASHBOARD);
 
-                List<String> notFoundedValuesForIndexesInElasticSearchDB = INDICIES_FOR_DASHBOARD.stream().filter(s -> !lastValueDtosForIndicies.containsKey(s)).collect(Collectors.toList());
-                for (String s : notFoundedValuesForIndexesInElasticSearchDB) {
+//                List<String> notFoundedValuesForIndexesInElasticSearchDB = INDICIES_FOR_DASHBOARD.stream().filter(s -> !lastValueDtosForIndicies.containsKey(s)).collect(Collectors.toList());
+                for (String s : INDICIES_FOR_DASHBOARD) {
 
-                    try (InfluxDBUtils influxDBUtils = new InfluxDBUtils("StiebelEltronHeatPumpRawDatas")) {
+                    try (InfluxDBUtils influxDBUtils = new InfluxDBUtils(Properties.ADDRESS_INFLUXDB, Properties.USER_INFLUXDB, Properties.PASSWORD_INFLUXDB, Properties.DATABASE_RAW_DATA_INFLUXDB)) {
                         List<PeriodicTimeseries> lastValuesForIndex = influxDBUtils.getLastValuesForIndex(s.replace(ES_INDEX_PREFIX, "")
+                                .toLowerCase()
                                 .replace("ü", "ue")
                                 .replace("ä", "ae")
                                 .replace("ö", "oe"));
@@ -64,7 +66,7 @@ public class ServerStarter {
 
                 Map<String, ValueDto> humanReadableNameToValues = new LinkedHashMap<>();
                 for (String s : lastValueDtosForIndicies.keySet()) {
-                    humanReadableNameToValues.put(DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME.getOrDefault((ES_INDEX_PREFIX + s).toLowerCase(), s), lastValueDtosForIndicies.get(s));
+                    humanReadableNameToValues.put(DisplayedNames.MAP_ES_INDEX_TO_DISPLAYED_NAME.getOrDefault(s.toLowerCase(), s), lastValueDtosForIndicies.get(s));
                 }
                 return mapper.writeValueAsString(humanReadableNameToValues);
             } catch (Exception e) {
@@ -134,24 +136,24 @@ public class ServerStarter {
             }
         });
 
-        Timer timerMoveData = new Timer();
-        timerMoveData.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    moveLastDatasToInfluxDB();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, 0, 1000 * 60 * 10); // Alle 10 Minuten
+//        Timer timerMoveData = new Timer();
+//        timerMoveData.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                try {
+//                    moveLastDatasToInfluxDB();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//        }, 0, 1000 * 60 * 10); // Alle 10 Minuten
     }
 
 
     public static void moveLastDatasToInfluxDB() {
 
-        ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils();
+        ElasticSearchUtils elasticSearchUtils = new ElasticSearchUtils("192.168.178.78", "localhost", 9200, "http");
 
         Instant start = Instant.now().minus(365, ChronoUnit.DAYS);
         Instant end = Instant.now().plusSeconds(60 * 60 * 24);
