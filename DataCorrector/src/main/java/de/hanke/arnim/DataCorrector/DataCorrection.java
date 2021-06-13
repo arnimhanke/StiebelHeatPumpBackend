@@ -1,8 +1,8 @@
 package de.hanke.arnim.DataCorrector;
 
-import de.hanke.arnim.TimeSeriesToolSet.*;
-import de.hanke.arnim.TimeSeriesToolSetPersistence.influx.InfluxTimeseries;
-import de.hanke.arnim.TimeSeriesToolSetServer.serivce.InfluxDBService;
+import de.hanke.arnim.TSTool.*;
+import de.hanke.arnim.TSPersistence.influx.InfluxTimeseries;
+import de.hanke.arnim.TSPersistence.influx.InfluxDBService;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

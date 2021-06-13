@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jsoniter.JsonIterator;
 import com.jsoniter.spi.*;
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
+import de.hanke.arnim.TSTool.PeriodicTimeseries;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;

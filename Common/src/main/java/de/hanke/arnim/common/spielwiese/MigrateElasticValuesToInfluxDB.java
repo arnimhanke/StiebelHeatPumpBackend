@@ -1,9 +1,9 @@
 package de.hanke.arnim.common.spielwiese;
 
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
-import de.hanke.arnim.TimeSeriesToolSet.Raster;
-import de.hanke.arnim.TimeSeriesToolSet.TimeseriesUnit;
+import de.hanke.arnim.TSTool.PeriodicTimeseries;
+import de.hanke.arnim.TSTool.PeriodicTimeseriesValue;
+import de.hanke.arnim.TSTool.Raster;
+import de.hanke.arnim.TSTool.TimeseriesUnit;
 import de.hanke.arnim.common.Constant;
 import de.hanke.arnim.common.ElasticSearchUtils;
 import de.hanke.arnim.common.InfluxDBUtils;

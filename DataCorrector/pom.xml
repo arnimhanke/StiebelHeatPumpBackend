@@ -14,19 +14,8 @@
     <dependencies>
         <dependency>
             <groupId>de.hanke.arnim</groupId>
-            <artifactId>TimeSeriesToolSetPersistence</artifactId>
+            <artifactId>TSPersistence</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>de.hanke.arnim</groupId>
-            <artifactId>TimeSeriesToolSet</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>de.hanke.arnim</groupId>
-            <artifactId>TimeSeriesToolSetServer</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

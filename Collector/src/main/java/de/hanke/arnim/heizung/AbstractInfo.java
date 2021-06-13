@@ -1,7 +1,7 @@
 package de.hanke.arnim.heizung;
 
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
+import de.hanke.arnim.TSTool.PeriodicTimeseries;
+import de.hanke.arnim.TSTool.PeriodicTimeseriesValue;
 import de.hanke.arnim.common.InfluxDBUtils;
 
 import java.math.BigDecimal;

@@ -8,9 +8,9 @@
     <artifactId>HeizungsSuite</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>Server</module>
-        <module>Collector</module>
         <module>Common</module>
+        <module>Collector</module>
+        <module>Server</module>
         <module>DataCorrector</module>
         <module>FakeISG</module>
     </modules>
@@ -53,7 +53,7 @@
         </dependency>
         <dependency>
             <groupId>de.hanke.arnim</groupId>
-            <artifactId>TimeSeriesToolSet</artifactId>
+            <artifactId>TSTool</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

@@ -1,7 +1,7 @@
 package de.hanke.arnim.data_collector;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
+import de.hanke.arnim.TSTool.PeriodicTimeseries;
 import de.hanke.arnim.common.InfluxDBUtils;
 
 import java.io.IOException;

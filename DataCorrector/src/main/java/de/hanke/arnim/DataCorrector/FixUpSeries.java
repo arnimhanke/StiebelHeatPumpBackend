@@ -1,15 +1,15 @@
 package de.hanke.arnim.DataCorrector;
 
-import de.hanke.arnim.TimeSeriesToolSet.AggregationTypes;
-import de.hanke.arnim.TimeSeriesToolSet.AggregationTypes.AggregationType;
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseries;
-import de.hanke.arnim.TimeSeriesToolSet.PeriodicTimeseriesValue;
+import de.hanke.arnim.TSTool.AggregationTypes;
+import de.hanke.arnim.TSTool.AggregationTypes.AggregationType;
+import de.hanke.arnim.TSTool.PeriodicTimeseries;
+import de.hanke.arnim.TSTool.PeriodicTimeseriesValue;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.hanke.arnim.TimeSeriesToolSet.AggregateFunctions.moveInstantToStartOfDay;
+import static de.hanke.arnim.TSTool.AggregateFunctions.moveInstantToStartOfDay;
 
 public class FixUpSeries {
 
